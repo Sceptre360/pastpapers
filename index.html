@@ -396,6 +396,7 @@
                         <th>Username</th>
                         <th>Password</th>
                         <th>Status</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody id="userTableBody">
@@ -403,7 +404,7 @@
                 </tbody>
             </table>
             <button onclick="downloadTable()">Download Users</button>
-            <button onclick="clearUserData()">Clear Users</button>
+            <button onclick="deleteUserData(index)">Delete User</button>
         </div>
 
         <!-- Search Bar -->
@@ -573,12 +574,13 @@
             const userTableBody = document.getElementById('userTableBody');
             userTableBody.innerHTML = '';
 
-            users.forEach(user => {
+            users.forEach((user, index) => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${user.username}</td>
                     <td>${user.password}</td>
                     <td>${user.status}</td>
+                    <td><button onclick="deleteUser(${index})">Delete</button></td>
                 `;
                 userTableBody.appendChild(row);
             });
@@ -602,12 +604,28 @@
             document.body.removeChild(link);
         }
 
-        function clearUserData() {
-            users.length = 0; // Clear the users array
-            localStorage.removeItem('users'); // Clear from local storage
-            updateUserTable(); // Update the table
-            alert('User data cleared successfully.');
+        function deleteUserData(index) {
+            if (index >= 0 && index < users.length) {
+                users.splice(index, 1); // Remove the user at the specified index
+                localStorage.setItem('users', JSON.stringify(users)); // Update local storage
+                updateUserTable(); // Update the table
+                alert('User data deleted successfully.');
+            } else {
+                alert('Invalid user index.');
+            }
         }
+
+        function deleteUser(index) {
+            if (index >= 0 && index < users.length) {
+                users.splice(index, 1); // Remove the user at the specified index
+                localStorage.setItem('users', JSON.stringify(users)); // Update local storage
+                updateUserTable(); // Update the table
+                alert('User deleted successfully.');
+            } else {
+                alert('Invalid user index.');
+            }
+        }
+        
 
         function updateNavigation() {
             const navLinks = document.getElementById('navLinks');
