@@ -376,10 +376,10 @@
             setCookie(name, '', -1);
         }
 
-        // Check for existing user cookie on page load
+        // Check for existing user in local storage and cookies on page load
         window.onload = function() {
-            const regNumber = getCookie('regNumber');
-            const password = getCookie('password');
+            const regNumber = localStorage.getItem('regNumber') || getCookie('regNumber');
+            const password = localStorage.getItem('password') || getCookie('password');
             if (regNumber && password) {
                 currentUser = { regNumber, password };
                 updateNavigation();
@@ -466,9 +466,11 @@
                 return;
             }
 
-            // Store user information in cookies
+            // Store user information in both cookies and local storage
             setCookie('regNumber', regNumber, 7); // Store for 7 days
             setCookie('password', password, 7); // Store for 7 days
+            localStorage.setItem('regNumber', regNumber);
+            localStorage.setItem('password', password);
 
             alert('Registration successful! You can now log in.');
             closeModal('registerModal');
@@ -493,6 +495,8 @@
             currentUser = null;
             deleteCookie('regNumber');
             deleteCookie('password');
+            localStorage.removeItem('regNumber');
+            localStorage.removeItem('password');
             updateNavigation();
         }
 
