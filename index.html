@@ -568,9 +568,13 @@
         displayMotivation(); // Display the first motivation immediately
 
         function showAdminPanel() {
-            const adminPanel = document.getElementById('adminPanel');
-            adminPanel.style.display = 'block';
-            loadPDFs();
+            if (currentUser && currentUser.regNumber === adminCredentials.username) {
+                const adminPanel = document.getElementById('adminPanel');
+                adminPanel.style.display = 'block';
+                loadPDFs();
+            } else {
+                alert('You do not have permission to access the admin panel.');
+            }
         }
 
         function handleAdminLogin(event) {
@@ -641,6 +645,7 @@
             const newTitle = prompt('Edit PDF Title:', pdf.title);
             if (newTitle) {
                 pdf.title = newTitle;
+                localStorage.setItem('pdfs', JSON.stringify(pdfs)); // Save changes to local storage
                 alert('PDF title updated successfully!');
                 loadPDFs(); // Refresh the PDF list
             }
