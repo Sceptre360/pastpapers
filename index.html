@@ -268,6 +268,7 @@
                 <div class="nav-links" id="navLinks">
                     <button onclick="showLogin()">Login</button>
                     <button onclick="showRegister()">Register</button>
+                    <button onclick="showAdminPanel()" style="display:none;" id="adminButton">Admin Panel</button>
                 </div>
                 <button class="menu-toggle" onclick="toggleMenu()">☰</button>
             </nav>
@@ -333,6 +334,22 @@
             </div>
         </div>
 
+        <!-- Admin Panel Modal -->
+        <div id="adminPanel" class="modal" style="display:none;">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('adminPanel')">&times;</span>
+                <div class="auth-container">
+                    <h2>Admin Panel</h2>
+                    <button onclick="downloadUserTable()">Download User Table</button>
+                    <h3>Upload PDF</h3>
+                    <input type="file" id="pdfUpload" accept=".pdf">
+                    <button onclick="uploadPDF()">Upload</button>
+                    <h3>Manage PDFs</h3>
+                    <div id="pdfList"></div>
+                </div>
+            </div>
+        </div>
+
         <!-- Search Bar -->
         <div class="search-container">
             <div class="search-bar">
@@ -356,6 +373,7 @@
 
         // Current user session
         let currentUser = null;
+        const adminCredentials = { username: 'E35admin', password: 'Musau8020' }; // Admin credentials
 
         // Check for existing user in local storage on page load
         window.onload = function() {
@@ -548,6 +566,85 @@
         // Initialize the application
         initializePDFs();
         displayMotivation(); // Display the first motivation immediately
+
+        function showAdminPanel() {
+            const adminPanel = document.getElementById('adminPanel');
+            adminPanel.style.display = 'block';
+            loadPDFs();
+        }
+
+        function handleAdminLogin(event) {
+            event.preventDefault();
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+
+            if (username === adminCredentials.username && password === adminCredentials.password) {
+                alert('Admin login successful!');
+                document.getElementById('adminButton').style.display = 'block';
+                closeModal('adminLoginModal');
+            } else {
+                alert('Invalid admin credentials');
+            }
+        }
+
+        function downloadUserTable() {
+            const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Registration Number,Password\n"; // Header
+
+            storedUsers.forEach(user => {
+                const row = `${user.regNumber},${user.password}`;
+                csvContent += row + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "user_data.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function uploadPDF() {
+            const fileInput = document.getElementById('pdfUpload');
+            const file = fileInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const pdfData = e.target.result;
+                    // Here you would typically send the PDF data to a server
+                    alert('PDF uploaded successfully!');
+                    loadPDFs(); // Refresh the PDF list
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert('Please select a PDF file to upload.');
+            }
+        }
+
+        function loadPDFs() {
+            const pdfList = document.getElementById('pdfList');
+            pdfList.innerHTML = '';
+            pdfs.forEach(pdf => {
+                const pdfItem = document.createElement('div');
+                pdfItem.innerHTML = `
+                    <h4>${pdf.title}</h4>
+                    <button onclick="editPDF(${pdf.id})">Edit</button>
+                `;
+                pdfList.appendChild(pdfItem);
+            });
+        }
+
+        function editPDF(pdfId) {
+            const pdf = pdfs.find(p => p.id === pdfId);
+            const newTitle = prompt('Edit PDF Title:', pdf.title);
+            if (newTitle) {
+                pdf.title = newTitle;
+                alert('PDF title updated successfully!');
+                loadPDFs(); // Refresh the PDF list
+            }
+        }
     </script>
     <footer style="background-color: #87ceeb; padding: 1rem; text-align: center;">
         <p>You are not logged in. <a href="#" onclick="showLogin()">Log in</a></p>
