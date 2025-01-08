@@ -357,29 +357,12 @@
         // Current user session
         let currentUser = null;
 
-        // Function to set a cookie
-        function setCookie(name, value, days) {
-            const expires = new Date(Date.now() + days * 864e5).toUTCString();
-            document.cookie = name + '=' + encodeURIComponent(value) + '; expires=' + expires + '; path=/';
-        }
-
-        // Function to get a cookie
-        function getCookie(name) {
-            return document.cookie.split('; ').reduce((r, c) => {
-                const [key, val] = c.split('=');
-                return key === name ? decodeURIComponent(val) : r;
-            }, '');
-        }
-
-        // Function to delete a cookie
-        function deleteCookie(name) {
-            setCookie(name, '', -1);
-        }
-
-        // Check for existing user in local storage and cookies on page load
+        // Check for existing user in local storage on page load
         window.onload = function() {
-            const regNumber = localStorage.getItem('regNumber') || getCookie('regNumber');
-            const password = localStorage.getItem('password') || getCookie('password');
+            const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
+            const regNumber = localStorage.getItem('regNumber');
+            const password = localStorage.getItem('password');
+
             if (regNumber && password) {
                 currentUser = { regNumber, password };
                 updateNavigation();
@@ -446,8 +429,13 @@
             const regNumber = document.getElementById('loginReg').value;
             const password = document.getElementById('loginPassword').value;
 
-            // Validate user (in a real app, this would check against a database)
-            if (currentUser && currentUser.regNumber === regNumber && currentUser.password === password) {
+            const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
+            const user = storedUsers.find(user => user.regNumber === regNumber && user.password === password);
+
+            if (user) {
+                currentUser = user;
+                localStorage.setItem('regNumber', regNumber);
+                localStorage.setItem('password', password);
                 alert('Login successful!');
                 updateNavigation();
             } else {
@@ -466,12 +454,17 @@
                 return;
             }
 
-            // Store user information in both cookies and local storage
-            setCookie('regNumber', regNumber, 7); // Store for 7 days
-            setCookie('password', password, 7); // Store for 7 days
-            localStorage.setItem('regNumber', regNumber);
-            localStorage.setItem('password', password);
+            const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
+            const existingUser = storedUsers.find(user => user.regNumber === regNumber);
 
+            if (existingUser) {
+                alert('Username already exists. Please choose a different one.');
+                return;
+            }
+
+            // Store user information in local storage
+            storedUsers.push({ regNumber, password });
+            localStorage.setItem('users', JSON.stringify(storedUsers));
             alert('Registration successful! You can now log in.');
             closeModal('registerModal');
         }
@@ -493,8 +486,6 @@
 
         function logout() {
             currentUser = null;
-            deleteCookie('regNumber');
-            deleteCookie('password');
             localStorage.removeItem('regNumber');
             localStorage.removeItem('password');
             updateNavigation();
