@@ -256,6 +256,29 @@
             height: auto; /* Maintain aspect ratio */
             margin: 1rem 0;
         }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        footer {
+            background-color: #87ceeb;
+            padding: 1rem;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -346,6 +369,16 @@
                     <button onclick="uploadPDF()">Upload</button>
                     <h3>Manage PDFs</h3>
                     <div id="pdfList"></div>
+                    <h3>User Details</h3>
+                    <table id="userTable">
+                        <thead>
+                            <tr>
+                                <th>Registration Number</th>
+                                <th>Password</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody"></tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -572,6 +605,7 @@
                 const adminPanel = document.getElementById('adminPanel');
                 adminPanel.style.display = 'block';
                 loadPDFs();
+                loadUserTable(); // Load user details into the table
             } else {
                 alert('You do not have permission to access the admin panel.');
             }
@@ -589,6 +623,21 @@
             } else {
                 alert('Invalid admin credentials');
             }
+        }
+
+        function loadUserTable() {
+            const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
+            const userTableBody = document.getElementById('userTableBody');
+            userTableBody.innerHTML = ''; // Clear existing rows
+
+            storedUsers.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.regNumber}</td>
+                    <td>${user.password}</td>
+                `;
+                userTableBody.appendChild(row);
+            });
         }
 
         function downloadUserTable() {
