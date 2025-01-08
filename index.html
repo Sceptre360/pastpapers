@@ -352,14 +352,39 @@
             { id: 1, title: 'Mathematics Unit 1', subject: 'Mathematics', unit: 'Unit 1' },
             { id: 2, title: 'Physics Mechanics', subject: 'Physics', unit: 'Unit 2' },
             { id: 3, title: 'Chemistry Basics', subject: 'Chemistry', unit: 'Unit 1' },
-            // Add more PDFs as needed
         ];
-
-        // Mock user data (in a real app, this would be in a database)
-        const users = [];
 
         // Current user session
         let currentUser = null;
+
+        // Function to set a cookie
+        function setCookie(name, value, days) {
+            const expires = new Date(Date.now() + days * 864e5).toUTCString();
+            document.cookie = name + '=' + encodeURIComponent(value) + '; expires=' + expires + '; path=/';
+        }
+
+        // Function to get a cookie
+        function getCookie(name) {
+            return document.cookie.split('; ').reduce((r, c) => {
+                const [key, val] = c.split('=');
+                return key === name ? decodeURIComponent(val) : r;
+            }, '');
+        }
+
+        // Function to delete a cookie
+        function deleteCookie(name) {
+            setCookie(name, '', -1);
+        }
+
+        // Check for existing user cookie on page load
+        window.onload = function() {
+            const regNumber = getCookie('regNumber');
+            const password = getCookie('password');
+            if (regNumber && password) {
+                currentUser = { regNumber, password };
+                updateNavigation();
+            }
+        };
 
         // Initialize PDF display
         function initializePDFs() {
@@ -421,10 +446,9 @@
             const regNumber = document.getElementById('loginReg').value;
             const password = document.getElementById('loginPassword').value;
 
-            const user = users.find(u => u.regNumber === regNumber && u.password === password);
-            if (user) {
-                currentUser = user;
-                closeModal('loginModal');
+            // Validate user (in a real app, this would check against a database)
+            if (currentUser && currentUser.regNumber === regNumber && currentUser.password === password) {
+                alert('Login successful!');
                 updateNavigation();
             } else {
                 alert('Invalid credentials');
@@ -442,14 +466,12 @@
                 return;
             }
 
-            if (users.some(u => u.regNumber === regNumber)) {
-                alert('Registration number already exists');
-                return;
-            }
+            // Store user information in cookies
+            setCookie('regNumber', regNumber, 7); // Store for 7 days
+            setCookie('password', password, 7); // Store for 7 days
 
-            users.push({ regNumber, password });
+            alert('Registration successful! You can now log in.');
             closeModal('registerModal');
-            alert('Registration successful! Please login.');
         }
 
         function updateNavigation() {
@@ -469,6 +491,8 @@
 
         function logout() {
             currentUser = null;
+            deleteCookie('regNumber');
+            deleteCookie('password');
             updateNavigation();
         }
 
