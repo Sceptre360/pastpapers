@@ -6,6 +6,7 @@
     <title>mtihanipastpapers</title>
     <link rel="icon" href="jacklogo.png" type="image/png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bcrypt.js/5.0.1/bcrypt.min.js"></script>
     <style>
         :root {
             --primary: #4f46e5; /* Blue */
@@ -185,10 +186,16 @@
         @media (max-width: 768px) {
             .nav-links {
                 gap: 1rem;
+                flex-direction: column; /* Stack buttons vertically */
+                display: none; /* Hide by default */
             }
 
-            .pdf-grid {
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            .nav-links.active {
+                display: flex; /* Show when active */
+            }
+
+            .menu-toggle {
+                display: block; /* Show menu toggle button */
             }
         }
 
@@ -279,6 +286,30 @@
             padding: 1rem;
             text-align: center;
         }
+
+        /* Add styles for user management */
+        .user-management {
+            display: none; /* Hidden by default */
+            margin-top: 2rem;
+            padding: 1rem;
+            background: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: var(--primary);
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -291,7 +322,6 @@
                 <div class="nav-links" id="navLinks">
                     <button onclick="showLogin()">Login</button>
                     <button onclick="showRegister()">Register</button>
-                    <button onclick="showAdminPanel()" style="display:none;" id="adminButton">Admin Panel</button>
                 </div>
                 <button class="menu-toggle" onclick="toggleMenu()">☰</button>
             </nav>
@@ -319,11 +349,11 @@
                     <h2>Login</h2>
                     <form id="loginForm" onsubmit="handleLogin(event)">
                         <div class="form-group">
-                            <label for="loginReg">Registration Number</label>
+                            <label for="loginReg">Registration Number (e.g., F40322023)</label>
                             <input type="text" id="loginReg" required>
                         </div>
                         <div class="form-group">
-                            <label for="loginPassword">Password</label>
+                            <label for="loginPassword">Password (Somas password/ad password)</label>
                             <input type="password" id="loginPassword" required>
                         </div>
                         <button type="submit">Login</button>
@@ -340,7 +370,7 @@
                     <h2>Register</h2>
                     <form id="registerForm" onsubmit="handleRegister(event)">
                         <div class="form-group">
-                            <label for="regNumber">Registration Number</label>
+                            <label for="regNumber">Registration Number (e.g., F40322023)</label>
                             <input type="text" id="regNumber" required>
                         </div>
                         <div class="form-group">
@@ -357,35 +387,28 @@
             </div>
         </div>
 
-        <!-- Admin Panel Modal -->
-        <div id="adminPanel" class="modal" style="display:none;">
-            <div class="modal-content">
-                <span class="close" onclick="closeModal('adminPanel')">&times;</span>
-                <div class="auth-container">
-                    <h2>Admin Panel</h2>
-                    <button onclick="downloadUserTable()">Download User Table</button>
-                    <h3>Upload PDF</h3>
-                    <input type="file" id="pdfUpload" accept=".pdf">
-                    <button onclick="uploadPDF()">Upload</button>
-                    <h3>Manage PDFs</h3>
-                    <div id="pdfList"></div>
-                    <h3>User Details</h3>
-                    <table id="userTable">
-                        <thead>
-                            <tr>
-                                <th>Registration Number</th>
-                                <th>Password</th>
-                            </tr>
-                        </thead>
-                        <tbody id="userTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
+        <!-- User Management Section -->
+        <div class="user-management" id="userManagement">
+            <h2>User Management</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Password</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+                    <!-- User data will be populated here -->
+                </tbody>
+            </table>
+            <button onclick="downloadTable()">Download Users</button>
+            <button onclick="clearUserData()">Clear Users</button>
         </div>
 
         <!-- Search Bar -->
         <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Search PDFs by title" oninput="filterPDFs()">
+            <input type="text" id="searchInput" placeholder="Search PDFs by title" oninput="searchPDFs()">
             <select id="categorySelect" onchange="filterPDFs()">
                 <option value="">Select Category</option>
                 <option value="Mechanics">Mechanics</option>
@@ -405,29 +428,20 @@
     </main>
 
     <script>
-        // Admin credentials
-        const adminCredentials = {
-            username: 'admin',
-            password: 'admin4016'
-        };
-
         // Current user session
         let currentUser = null;
+        const users = JSON.parse(localStorage.getItem('users')) || []; // Load users from local storage
 
         // Check for existing user in local storage on page load
         window.onload = function() {
             const regNumber = localStorage.getItem('regNumber');
             const password = localStorage.getItem('password');
 
-            // Automatically log in as admin if the admin credentials are used
-            if (regNumber === adminCredentials.username && password === adminCredentials.password) {
-                currentUser = { regNumber, password };
-                document.getElementById('adminButton').style.display = 'block';
-                showAdminPanel();
-            } else if (regNumber && password) {
+            if (regNumber && password) {
                 currentUser = { regNumber, password };
                 updateNavigation();
             }
+            updateUserTable();
         };
 
         // Mock data for PDFs
@@ -458,8 +472,8 @@
             card.innerHTML = `
                 <div class="pdf-thumbnail">PDF</div>
                 <h3>${pdf.title}</h3>
-                <p>Subject: ${pdf.subject}</p>
-                <p>Unit: ${pdf.unit}</p>
+                <p>Subject: ${pdf.subject || 'N/A'}</p>
+                <p>Unit: ${pdf.unit || 'N/A'}</p>
                 <button onclick="viewPDF(${pdf.id})">View PDF</button>
             `;
             return card;
@@ -467,11 +481,9 @@
 
         // Search PDFs
         function searchPDFs() {
-            const searchTerm = event.target.value.toLowerCase();
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const filteredPDFs = pdfs.filter(pdf => 
-                pdf.title.toLowerCase().includes(searchTerm) ||
-                pdf.subject.toLowerCase().includes(searchTerm) ||
-                pdf.unit.toLowerCase().includes(searchTerm)
+                pdf.title.toLowerCase().includes(searchTerm)
             );
 
             const pdfGrid = document.getElementById('pdfGrid');
@@ -500,6 +512,15 @@
             const regNumber = document.getElementById('loginReg').value;
             const password = document.getElementById('loginPassword').value;
 
+            // Check for admin credentials
+            if (regNumber === 'admin'&& password === 'admin123') {
+                currentUser = { regNumber, password, isAdmin: true };
+                alert('Admin login successful!');
+                document.getElementById('userManagement').style.display = 'block'; // Show user management
+                updateNavigation();
+                return;
+            }
+
             const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
             const user = storedUsers.find(user => user.regNumber === regNumber && user.password === password);
 
@@ -509,21 +530,9 @@
                 localStorage.setItem('password', password);
                 alert('Login successful!');
                 updateNavigation();
+                addUserToManagement(user.regNumber, password, 'Active');
             } else {
-                // Prompt for manual input if credentials are not found
-                const manualInput = confirm('Invalid credentials. Would you like to enter your credentials manually?');
-                if (manualInput) {
-                    const newRegNumber = prompt('Enter your Registration Number:');
-                    const newPassword = prompt('Enter your Password:');
-                    const existingUser = storedUsers.find(user => user.regNumber === newRegNumber && user.password === newPassword);
-                    if (existingUser) {
-                        currentUser = existingUser;
-                        alert('Login successful!');
-                        updateNavigation();
-                    } else {
-                        alert('Invalid credentials again. Please check your details.');
-                    }
-                }
+                alert('Invalid credentials. Please check your details.');
             }
         }
 
@@ -551,6 +560,53 @@
             localStorage.setItem('users', JSON.stringify(storedUsers));
             alert('Registration successful! You can now log in.');
             closeModal('registerModal');
+            addUserToManagement(regNumber, password, 'Inactive');
+        }
+
+        function addUserToManagement(username, password, status) {
+            users.push({ username, password, status });
+            updateUserTable();
+            localStorage.setItem('users', JSON.stringify(users)); // Save to local storage
+        }
+
+        function updateUserTable() {
+            const userTableBody = document.getElementById('userTableBody');
+            userTableBody.innerHTML = '';
+
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.username}</td>
+                    <td>${user.password}</td>
+                    <td>${user.status}</td>
+                `;
+                userTableBody.appendChild(row);
+            });
+        }
+
+        function downloadTable() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Username,Password,Status\n"; // Header
+
+            users.forEach(user => {
+                const row = `${user.username},${user.password},${user.status}`;
+                csvContent += row + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "users.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function clearUserData() {
+            users.length = 0; // Clear the users array
+            localStorage.removeItem('users'); // Clear from local storage
+            updateUserTable(); // Update the table
+            alert('User data cleared successfully.');
         }
 
         function updateNavigation() {
@@ -572,13 +628,8 @@
             currentUser = null;
             localStorage.removeItem('regNumber');
             localStorage.removeItem('password');
+            document.getElementById('userManagement').style.display = 'none'; // Hide user management on logout
             updateNavigation();
-        }
-
-        // Toggle mobile menu
-        function toggleMenu() {
-            const navLinks = document.getElementById('navLinks');
-            navLinks.classList.toggle('active');
         }
 
         // View PDF function (mock implementation)
@@ -618,109 +669,18 @@
 
         // Initialize the application
         initializePDFs();
-        displayMotivation(); // Display the first motivation immediately
 
-        function showAdminPanel() {
-            if (currentUser && currentUser.regNumber === adminCredentials.username) {
-                const adminPanel = document.getElementById('adminPanel');
-                adminPanel.style.display = 'block';
-                loadPDFs();
-                loadUserTable(); // Load user details into the table
-            } else {
-                alert('You do not have permission to access the admin panel.');
-            }
+        function toggleMenu() {
+            const navLinks = document.getElementById('navLinks');
+            navLinks.classList.toggle('active'); // Toggle the active class to show/hide the menu
         }
 
-        function handleAdminLogin(event) {
-            event.preventDefault();
-            const username = document.getElementById('adminUsername').value;
-            const password = document.getElementById('adminPassword').value;
+        // Initialize the user table on page load
+        window.onload = function() {
+            updateUserTable();
+        };
 
-            if (username === adminCredentials.username && password === adminCredentials.password) {
-                alert('Admin login successful!');
-                currentUser = { regNumber: username, password: password }; // Set current user
-                document.getElementById('adminButton').style.display = 'block';
-                closeModal('adminLoginModal');
-                showAdminPanel(); // Show admin panel immediately
-            } else {
-                alert('Invalid admin credentials');
-            }
-        }
-
-        function loadUserTable() {
-            const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
-            const userTableBody = document.getElementById('userTableBody');
-            userTableBody.innerHTML = ''; // Clear existing rows
-
-            storedUsers.forEach(user => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${user.regNumber}</td>
-                    <td>${user.password}</td>
-                `;
-                userTableBody.appendChild(row);
-            });
-        }
-
-        function downloadUserTable() {
-            const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
-            let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "Registration Number,Password\n"; // Header
-
-            storedUsers.forEach(user => {
-                const row = `${user.regNumber},${user.password}`;
-                csvContent += row + "\n";
-            });
-
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "user_data.csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        function uploadPDF() {
-            const fileInput = document.getElementById('pdfUpload');
-            const file = fileInput.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const pdfData = e.target.result;
-                    // Here you would typically send the PDF data to a server
-                    alert('PDF uploaded successfully!');
-                    loadPDFs(); // Refresh the PDF list
-                };
-                reader.readAsDataURL(file);
-            } else {
-                alert('Please select a PDF file to upload.');
-            }
-        }
-
-        function loadPDFs() {
-            const pdfList = document.getElementById('pdfList');
-            pdfList.innerHTML = '';
-            pdfs.forEach(pdf => {
-                const pdfItem = document.createElement('div');
-                pdfItem.innerHTML = `
-                    <h4>${pdf.title}</h4>
-                    <button onclick="editPDF(${pdf.id})">Edit</button>
-                `;
-                pdfList.appendChild(pdfItem);
-            });
-        }
-
-        function editPDF(pdfId) {
-            const pdf = pdfs.find(p => p.id === pdfId);
-            const newTitle = prompt('Edit PDF Title:', pdf.title);
-            if (newTitle) {
-                pdf.title = newTitle;
-                localStorage.setItem('pdfs', JSON.stringify(pdfs)); // Save changes to local storage
-                alert('PDF title updated successfully!');
-                loadPDFs(); // Refresh the PDF list
-            }
-        }
+    
     </script>
     <footer style="background-color: #87ceeb; padding: 1rem; text-align: center;">
         <p>You are not logged in. <a href="#" onclick="showLogin()">Log in</a></p>
