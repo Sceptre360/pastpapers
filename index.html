@@ -397,20 +397,17 @@
     </main>
 
     <script>
-        // Mock data for PDFs
-        const pdfs = [
-            { id: 1, title: 'Mathematics Unit 1', subject: 'Mathematics', unit: 'Unit 1' },
-            { id: 2, title: 'Physics Mechanics', subject: 'Physics', unit: 'Unit 2' },
-            { id: 3, title: 'Chemistry Basics', subject: 'Chemistry', unit: 'Unit 1' },
-        ];
+        // Admin credentials
+        const adminCredentials = {
+            username: 'admin',
+            password: 'admin4016'
+        };
 
         // Current user session
         let currentUser = null;
-        const adminCredentials = { username: 'admin', password: 'admin4016' }; // Admin credentials
 
         // Check for existing user in local storage on page load
         window.onload = function() {
-            const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
             const regNumber = localStorage.getItem('regNumber');
             const password = localStorage.getItem('password');
 
@@ -424,6 +421,13 @@
                 updateNavigation();
             }
         };
+
+        // Mock data for PDFs
+        const pdfs = [
+            { id: 1, title: 'Mathematics Unit 1', subject: 'Mathematics', unit: 'Unit 1' },
+            { id: 2, title: 'Physics Mechanics', subject: 'Physics', unit: 'Unit 2' },
+            { id: 3, title: 'Chemistry Basics', subject: 'Chemistry', unit: 'Unit 1' },
+        ];
 
         // Initialize PDF display
         function initializePDFs() {
@@ -623,8 +627,10 @@
 
             if (username === adminCredentials.username && password === adminCredentials.password) {
                 alert('Admin login successful!');
+                currentUser = { regNumber: username, password: password }; // Set current user
                 document.getElementById('adminButton').style.display = 'block';
                 closeModal('adminLoginModal');
+                showAdminPanel(); // Show admin panel immediately
             } else {
                 alert('Invalid admin credentials');
             }
