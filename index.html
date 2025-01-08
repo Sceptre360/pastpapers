@@ -439,7 +439,20 @@
                 alert('Login successful!');
                 updateNavigation();
             } else {
-                alert('Invalid credentials');
+                // Prompt for manual input if credentials are not found
+                const manualInput = confirm('Invalid credentials. Would you like to enter your credentials manually?');
+                if (manualInput) {
+                    const newRegNumber = prompt('Enter your Registration Number:');
+                    const newPassword = prompt('Enter your Password:');
+                    const existingUser = storedUsers.find(user => user.regNumber === newRegNumber && user.password === newPassword);
+                    if (existingUser) {
+                        currentUser = existingUser;
+                        alert('Login successful!');
+                        updateNavigation();
+                    } else {
+                        alert('Invalid credentials again. Please check your details.');
+                    }
+                }
             }
         }
 
