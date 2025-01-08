@@ -385,12 +385,20 @@
 
         <!-- Search Bar -->
         <div class="search-container">
-            <div class="search-bar">
-                <input type="text" placeholder="Search PDFs by subject, unit, or keywords..." onkeyup="searchPDFs()">
-            </div>
+            <input type="text" id="searchInput" placeholder="Search PDFs by title" oninput="filterPDFs()">
+            <select id="categorySelect" onchange="filterPDFs()">
+                <option value="">Select Category</option>
+                <option value="Mechanics">Mechanics</option>
+                <option value="Geospatial">Geospatial</option>
+                <option value="Civil">Civil</option>
+            </select>
+            <select id="subcategorySelect" onchange="filterPDFs()">
+                <option value="">Select Subcategory</option>
+                <option value="1">Subcategory 1</option>
+                <option value="2">Subcategory 2</option>
+            </select>
         </div>
 
-        <!-- PDF Grid -->
         <div class="pdf-grid" id="pdfGrid">
             <!-- PDF cards will be dynamically added here -->
         </div>
@@ -424,9 +432,12 @@
 
         // Mock data for PDFs
         const pdfs = [
-            { id: 1, title: 'Mathematics Unit 1', subject: 'Mathematics', unit: 'Unit 1' },
-            { id: 2, title: 'Physics Mechanics', subject: 'Physics', unit: 'Unit 2' },
-            { id: 3, title: 'Chemistry Basics', subject: 'Chemistry', unit: 'Unit 1' },
+            { id: 1, title: 'Mechanics PDF 1', category: 'Mechanics', subcategory: '1' },
+            { id: 2, title: 'Mechanics PDF 2', category: 'Mechanics', subcategory: '2' },
+            { id: 3, title: 'Geospatial PDF 1', category: 'Geospatial', subcategory: '1' },
+            { id: 4, title: 'Geospatial PDF 2', category: 'Geospatial', subcategory: '2' },
+            { id: 5, title: 'Civil PDF 1', category: 'Civil', subcategory: '1' },
+            { id: 6, title: 'Civil PDF 2', category: 'Civil', subcategory: '2' },
         ];
 
         // Initialize PDF display
