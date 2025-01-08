@@ -281,7 +281,8 @@
     <div class="revision-section">
         <h2>It's Revision Time</h2>
         <div class="motivation-container" id="motivationContainer">
-            <!-- Image and message will be inserted here -->
+            <img src="images/jack4.jpg" alt="Motivation" class="motivation-image" id="motivationImage">
+            <p id="motivationMessage">You are smart enough!</p>
         </div>
     </div>
 
@@ -486,9 +487,6 @@
             alert(`Viewing PDF ${pdfId}`);
         }
 
-        // Initialize the application
-        initializePDFs();
-
         // Array of images and motivational messages
         const motivations = [
             { image: 'images/jack1.jpg', message: 'You can do it!' },
@@ -497,20 +495,27 @@
             { image: 'images/jack4.jpg', message: 'You are smart enough!' }
         ];
 
-        // Function to display a random motivation
-        function displayRandomMotivation() {
-            const randomIndex = Math.floor(Math.random() * motivations.length);
-            const motivation = motivations[randomIndex];
+        let currentMotivationIndex = 0;
 
-            const container = document.getElementById('motivationContainer');
-            container.innerHTML = `
-                <img src="${motivation.image}" alt="Motivation" class="motivation-image">
-                <p>${motivation.message}</p>
-            `;
+        // Function to display a random motivation
+        function displayMotivation() {
+            const motivation = motivations[currentMotivationIndex];
+            const imageElement = document.getElementById('motivationImage');
+            const messageElement = document.getElementById('motivationMessage');
+
+            imageElement.src = motivation.image;
+            messageElement.textContent = motivation.message;
+
+            // Update the index for the next motivation
+            currentMotivationIndex = (currentMotivationIndex + 1) % motivations.length;
         }
 
-        // Call the function to display a random motivation on page load
-        displayRandomMotivation();
+        // Change motivation every 5 seconds
+        setInterval(displayMotivation, 5000);
+
+        // Initialize the application
+        initializePDFs();
+        displayMotivation(); // Display the first motivation immediately
     </script>
 </body>
 </html>
