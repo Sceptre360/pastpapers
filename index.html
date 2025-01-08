@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mtihanipastpapers</title>
+    <link rel="icon" href="jacklogo.png" type="image/png">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+        :root {
+            --primary: #4f46e5; /* Blue */
+            --primary-dark: #4338ca; /* Darker Blue */
+            --background: #87ceeb; /* Sky Blue */
+            --text: #1f2937; /* Dark Text */
+            --white: #ffffff; /* White */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Header Styles */
+        header {
+            background: var(--white);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            position: relative;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .logo-image {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px; /* Adjust size as needed */
+            height: auto; /* Maintain aspect ratio */
+            opacity: 0.5; /* Optional: make it slightly transparent */
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        /* SmartEngineer Banner */
+        .smart-engineer-banner {
+            background: var(--white);
+            color: var(--primary);
+            text-align: center;
+            padding: 1rem 0;
+            font-size: 1.5rem;
+            margin-top: 5rem; /* To push it below the header */
+        }
+
+        /* Main Content */
+        main {
+            margin-top: 1rem; /* Adjusted to fit the new banner */
+            padding: 2rem 0;
+        }
+
+        /* Auth Forms */
+        .auth-container {
+            max-width: 400px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        button {
+            background: var(--primary);
+            color: var(--white);
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background: var(--primary-dark);
+        }
+
+        /* PDF Library */
+        .pdf-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            padding: 1rem 0;
+        }
+
+        .pdf-card {
+            background: var(--white);
+            color: var(--text);
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .pdf-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .pdf-thumbnail {
+            width: 100%;
+            height: 150px;
+            background: #f3f4f6;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Search Bar */
+        .search-container {
+            margin: 2rem 0;
+        }
+
+        .search-bar {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .search-bar input {
+            flex: 1;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .pdf-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-links {
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                right: 0;
+                background: white;
+                padding: 1rem;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                display: none;
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 90%;
+            width: 800px;
+            margin: 2rem auto;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            float: right;
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+
+        .revision-section {
+            background: var(--white);
+            color: var(--primary);
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 1rem;
+        }
+
+        .motivation-image {
+            width: 100%; /* Adjust as needed */
+            max-width: 400px; /* Limit the size */
+            height: auto; /* Maintain aspect ratio */
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <img src="jacklogo.png" alt="Logo" class="logo-image">
+                </div>
+                <div class="nav-links" id="navLinks">
+                    <button onclick="showLogin()">Login</button>
+                    <button onclick="showRegister()">Register</button>
+                </div>
+                <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+            </nav>
+        </div>
+    </header>
+
+    <div class="smart-engineer-banner">
+        SmartEngineer
+    </div>
+
+    <div class="revision-section">
+        <h2>It's Revision Time</h2>
+        <div class="motivation-container" id="motivationContainer">
+            <!-- Image and message will be inserted here -->
+        </div>
+    </div>
+
+    <main class="container">
+        <!-- Login Form Modal -->
+        <div id="loginModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('loginModal')">&times;</span>
+                <div class="auth-container">
+                    <h2>Login</h2>
+                    <form id="loginForm" onsubmit="handleLogin(event)">
+                        <div class="form-group">
+                            <label for="loginReg">Registration Number</label>
+                            <input type="text" id="loginReg" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="loginPassword">Password</label>
+                            <input type="password" id="loginPassword" required>
+                        </div>
+                        <button type="submit">Login</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Register Form Modal -->
+        <div id="registerModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('registerModal')">&times;</span>
+                <div class="auth-container">
+                    <h2>Register</h2>
+                    <form id="registerForm" onsubmit="handleRegister(event)">
+                        <div class="form-group">
+                            <label for="regNumber">Registration Number</label>
+                            <input type="text" id="regNumber" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="regPassword">Password</label>
+                            <input type="password" id="regPassword" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm Password</label>
+                            <input type="password" id="confirmPassword" required>
+                        </div>
+                        <button type="submit">Register</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+            <div class="search-bar">
+                <input type="text" placeholder="Search PDFs by subject, unit, or keywords..." onkeyup="searchPDFs()">
+            </div>
+        </div>
+
+        <!-- PDF Grid -->
+        <div class="pdf-grid" id="pdfGrid">
+            <!-- PDF cards will be dynamically added here -->
+        </div>
+    </main>
+
+    <script>
+        // Mock data for PDFs
+        const pdfs = [
+            { id: 1, title: 'Mathematics Unit 1', subject: 'Mathematics', unit: 'Unit 1' },
+            { id: 2, title: 'Physics Mechanics', subject: 'Physics', unit: 'Unit 2' },
+            { id: 3, title: 'Chemistry Basics', subject: 'Chemistry', unit: 'Unit 1' },
+            // Add more PDFs as needed
+        ];
+
+        // Mock user data (in a real app, this would be in a database)
+        const users = [];
+
+        // Current user session
+        let currentUser = null;
+
+        // Initialize PDF display
+        function initializePDFs() {
+            const pdfGrid = document.getElementById('pdfGrid');
+            pdfGrid.innerHTML = '';
+
+            pdfs.forEach(pdf => {
+                const card = createPDFCard(pdf);
+                pdfGrid.appendChild(card);
+            });
+        }
+
+        // Create PDF card element
+        function createPDFCard(pdf) {
+            const card = document.createElement('div');
+            card.className = 'pdf-card';
+            card.innerHTML = `
+                <div class="pdf-thumbnail">PDF</div>
+                <h3>${pdf.title}</h3>
+                <p>Subject: ${pdf.subject}</p>
+                <p>Unit: ${pdf.unit}</p>
+                <button onclick="viewPDF(${pdf.id})">View PDF</button>
+            `;
+            return card;
+        }
+
+        // Search PDFs
+        function searchPDFs() {
+            const searchTerm = event.target.value.toLowerCase();
+            const filteredPDFs = pdfs.filter(pdf => 
+                pdf.title.toLowerCase().includes(searchTerm) ||
+                pdf.subject.toLowerCase().includes(searchTerm) ||
+                pdf.unit.toLowerCase().includes(searchTerm)
+            );
+
+            const pdfGrid = document.getElementById('pdfGrid');
+            pdfGrid.innerHTML = '';
+            filteredPDFs.forEach(pdf => {
+                const card = createPDFCard(pdf);
+                pdfGrid.appendChild(card);
+            });
+        }
+
+        // Authentication functions
+        function showLogin() {
+            document.getElementById('loginModal').style.display = 'block';
+        }
+
+        function showRegister() {
+            document.getElementById('registerModal').style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function handleLogin(event) {
+            event.preventDefault();
+            const regNumber = document.getElementById('loginReg').value;
+            const password = document.getElementById('loginPassword').value;
+
+            const user = users.find(u => u.regNumber === regNumber && u.password === password);
+            if (user) {
+                currentUser = user;
+                closeModal('loginModal');
+                updateNavigation();
+            } else {
+                alert('Invalid credentials');
+            }
+        }
+
+        function handleRegister(event) {
+            event.preventDefault();
+            const regNumber = document.getElementById('regNumber').value;
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+
+            if (users.some(u => u.regNumber === regNumber)) {
+                alert('Registration number already exists');
+                return;
+            }
+
+            users.push({ regNumber, password });
+            closeModal('registerModal');
+            alert('Registration successful! Please login.');
+        }
+
+        function updateNavigation() {
+            const navLinks = document.getElementById('navLinks');
+            if (currentUser) {
+                navLinks.innerHTML = `
+                    <span>Welcome, ${currentUser.regNumber}</span>
+                    <button onclick="logout()">Logout</button>
+                `;
+            } else {
+                navLinks.innerHTML = `
+                    <button onclick="showLogin()">Login</button>
+                    <button onclick="showRegister()">Register</button>
+                `;
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            updateNavigation();
+        }
+
+        // Toggle mobile menu
+        function toggleMenu() {
+            const navLinks = document.getElementById('navLinks');
+            navLinks.classList.toggle('active');
+        }
+
+        // View PDF function (mock implementation)
+        function viewPDF(pdfId) {
+            if (!currentUser) {
+                alert('Please login to view PDFs');
+                return;
+            }
+            alert(`Viewing PDF ${pdfId}`);
+        }
+
+        // Initialize the application
+        initializePDFs();
+
+        // Array of images and motivational messages
+        const motivations = [
+            { image: 'images/jack1.jpg', message: 'You can do it!' },
+            { image: 'images/jack2.jpg', message: 'You have mastered the content!' },
+            { image: 'images/jack3.jpg', message: 'Just believe in yourself!' },
+            { image: 'images/jack4.jpg', message: 'You are smart enough!' }
+        ];
+
+        // Function to display a random motivation
+        function displayRandomMotivation() {
+            const randomIndex = Math.floor(Math.random() * motivations.length);
+            const motivation = motivations[randomIndex];
+
+            const container = document.getElementById('motivationContainer');
+            container.innerHTML = `
+                <img src="${motivation.image}" alt="Motivation" class="motivation-image">
+                <p>${motivation.message}</p>
+            `;
+        }
+
+        // Call the function to display a random motivation on page load
+        displayRandomMotivation();
+    </script>
+</body>
+</html>
