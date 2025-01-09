@@ -3,8 +3,8 @@ const supabaseUrl = 'https://xkzjjdwalnuiwidjslvm.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrempqZHdhbG51aXdpZGpzbHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY0MDE1MTgsImV4cCI6MjA1MTk3NzUxOH0.LC0Y09mty1-8W2jqX0XFYvbAlvCuicG_E9x_2_g0KgY';
 const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-// Current user session
-let currentUser = null;
+// Current user session (stored in localStorage)
+let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 
 // Mock data for PDFs
 const pdfs = [
@@ -52,7 +52,7 @@ function createPDFCard(pdf) {
     const card = document.createElement('div');
     card.className = 'pdf-card';
     card.innerHTML = `
-        <div class="pdf-thumbnail">PDF</div>
+        <div class="pdf-thumbnail">${pdf.title.charAt(0).toUpperCase()}</div>
         <h3>${pdf.title}</h3>
         <p>Category: ${pdf.category}</p>
         <p>Subcategory: ${pdf.subcategory}</p>
@@ -100,19 +100,63 @@ function searchPDFs() {
     });
 }
 
-// Authentication functions
+// Filter PDFs by category and subcategory
+function filterPDFs() {
+    const category = document.getElementById('categorySelect').value;
+    const subcategory = document.getElementById('subcategorySelect').value;
+
+    const filteredPDFs = pdfs.filter(pdf => {
+        return (
+            (category === '' || pdf.category === category) &&
+            (subcategory === '' || pdf.subcategory === subcategory)
+        );
+    });
+
+    const pdfGrid = document.getElementById('pdfGrid');
+    if (!pdfGrid) {
+        console.error('PDF grid element not found!');
+        return;
+    }
+
+    pdfGrid.innerHTML = ''; // Clear existing content
+
+    if (filteredPDFs.length === 0) {
+        pdfGrid.innerHTML = '<p>No PDFs found matching your filters.</p>';
+        return;
+    }
+
+    filteredPDFs.forEach(pdf => {
+        const card = createPDFCard(pdf);
+        if (card) {
+            pdfGrid.appendChild(card);
+        } else {
+            console.error('Failed to create PDF card for:', pdf);
+        }
+    });
+}
+
+// Toggle menu for mobile devices
+function toggleMenu() {
+    const navLinks = document.getElementById('navLinks');
+    navLinks.classList.toggle('active');
+}
+
+// Show login modal
 function showLogin() {
     document.getElementById('loginModal').style.display = 'block';
 }
 
+// Show register modal
 function showRegister() {
     document.getElementById('registerModal').style.display = 'block';
 }
 
+// Close modal
 function closeModal(modalId) {
     document.getElementById(modalId).style.display = 'none';
 }
 
+// Handle login form submission
 async function handleLogin(event) {
     event.preventDefault();
     const regNumber = document.getElementById('loginReg').value;
@@ -121,6 +165,7 @@ async function handleLogin(event) {
     // Check for admin credentials
     if (regNumber === 'admin' && password === 'admin123') {
         currentUser = { regNumber, password, isAdmin: true };
+        localStorage.setItem('currentUser', JSON.stringify(currentUser)); // Store in local storage
         alert('Admin login successful!');
         document.getElementById('userManagement').style.display = 'block'; // Show user management
         updateNavigation();
@@ -138,6 +183,7 @@ async function handleLogin(event) {
 
     if (user) {
         currentUser = user;
+        localStorage.setItem('currentUser', JSON.stringify(currentUser)); // Store in local storage
         alert('Login successful!');
         updateNavigation();
         closeModal('loginModal');
@@ -146,6 +192,7 @@ async function handleLogin(event) {
     }
 }
 
+// Handle register form submission
 async function handleRegister(event) {
     event.preventDefault();
     const regNumber = document.getElementById('regNumber').value;
@@ -157,7 +204,7 @@ async function handleRegister(event) {
         return;
     }
 
-    // Check if user already exists
+    // Check if user already exists in Supabase
     const { data: existingUser, error: fetchError } = await supabase
         .from('users')
         .select('*')
@@ -184,6 +231,7 @@ async function handleRegister(event) {
     }
 }
 
+// Update user table
 async function updateUserTable() {
     const userTableBody = document.getElementById('userTableBody');
     if (!userTableBody) {
@@ -213,6 +261,7 @@ async function updateUserTable() {
     }
 }
 
+// Delete user
 async function deleteUser(userId) {
     if (confirm('Are you sure you want to delete this user?')) {
         const { error } = await supabase
@@ -230,6 +279,7 @@ async function deleteUser(userId) {
     }
 }
 
+// Update navigation based on login status
 function updateNavigation() {
     const navLinks = document.getElementById('navLinks');
     if (!navLinks) {
@@ -250,37 +300,13 @@ function updateNavigation() {
     }
 }
 
+// Logout function
 function logout() {
     currentUser = null;
+    localStorage.removeItem('currentUser'); // Clear local storage
     document.getElementById('userManagement').style.display = 'none'; // Hide user management on logout
     updateNavigation();
 }
-
-// Array of images and motivational messages
-const motivations = [
-    { image: 'images/jack1.jpg', message: 'You can do it!' },
-    { image: 'images/jack2.jpg', message: 'You have mastered the content!' },
-    { image: 'images/jack3.jpg', message: 'Just believe in yourself!' },
-    { image: 'images/jack4.jpg', message: 'You are smart enough!' }
-];
-
-let currentMotivationIndex = 0;
-
-// Function to display a random motivation
-function displayMotivation() {
-    const motivation = motivations[currentMotivationIndex];
-    const imageElement = document.getElementById('motivationImage');
-    const messageElement = document.getElementById('motivationMessage');
-
-    imageElement.src = motivation.image;
-    messageElement.textContent = motivation.message;
-
-    // Update the index for the next motivation
-    currentMotivationIndex = (currentMotivationIndex + 1) % motivations.length;
-}
-
-// Change motivation every 5 seconds
-setInterval(displayMotivation, 5000);
 
 // Initialize the application
 window.onload = function () {
@@ -292,9 +318,7 @@ window.onload = function () {
     // Attach event listeners to login and register forms
     document.getElementById('loginForm').addEventListener('submit', handleLogin);
     document.getElementById('registerForm').addEventListener('submit', handleRegister);
-};
 
-function toggleMenu() {
-    const navLinks = document.getElementById('navLinks');
-    navLinks.classList.toggle('active'); // Toggle the active class to show/hide the menu
-}
+    // Attach event listener to menu toggle button
+    document.querySelector('.menu-toggle').addEventListener('click', toggleMenu);
+};

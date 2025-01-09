@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>mtihanipastpapers</title>
+    <title>Mtihani Past Papers</title>
     <link rel="icon" href="jacklogo.png" type="image/png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bcrypt.js/5.0.1/bcrypt.min.js"></script>
     <!-- Add Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* Your existing CSS styles */
         :root {
             --primary: #4f46e5; /* Blue */
             --primary-dark: #4338ca; /* Darker Blue */
@@ -67,14 +66,20 @@
             left: 0;
             top: 50%;
             transform: translateY(-50%);
-            width: 40px; /* Adjust size as needed */
-            height: auto; /* Maintain aspect ratio */
-            opacity: 0.5; /* Optional: make it slightly transparent */
+            width: 40px;
+            height: auto;
+            opacity: 0.5;
         }
 
         .nav-links {
             display: flex;
             gap: 2rem;
+        }
+
+        .menu-toggle {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
         }
 
         /* SmartEngineer Banner */
@@ -84,12 +89,12 @@
             text-align: center;
             padding: 1rem 0;
             font-size: 1.5rem;
-            margin-top: 5rem; /* To push it below the header */
+            margin-top: 5rem;
         }
 
         /* Main Content */
         main {
-            margin-top: 1rem; /* Adjusted to fit the new banner */
+            margin-top: 1rem;
             padding: 2rem 0;
         }
 
@@ -192,30 +197,15 @@
         /* Responsive Design */
         @media (max-width: 768px) {
             .nav-links {
-                gap: 1rem;
-                flex-direction: column; /* Stack buttons vertically */
-                display: none; /* Hide by default */
-            }
-
-            .nav-links.active {
-                display: flex; /* Show when active */
-            }
-
-            .menu-toggle {
-                display: block; /* Show menu toggle button */
-            }
-        }
-
-        @media (max-width: 480px) {
-            .nav-links {
+                display: none;
                 flex-direction: column;
+                gap: 1rem;
                 position: absolute;
                 top: 100%;
                 right: 0;
                 background: white;
                 padding: 1rem;
                 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-                display: none;
             }
 
             .nav-links.active {
@@ -265,9 +255,9 @@
         }
 
         .motivation-image {
-            width: 100%; /* Adjust as needed */
-            max-width: 400px; /* Limit the size */
-            height: auto; /* Maintain aspect ratio */
+            width: 100%;
+            max-width: 400px;
+            height: auto;
             margin: 1rem 0;
         }
 
@@ -294,28 +284,14 @@
             text-align: center;
         }
 
-        /* Add styles for user management */
+        /* User Management */
         .user-management {
-            display: none; /* Hidden by default */
+            display: none;
             margin-top: 2rem;
             padding: 1rem;
             background: var(--white);
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: var(--primary);
-            color: white;
         }
     </style>
 </head>
@@ -360,7 +336,7 @@
                             <input type="text" id="loginReg" required>
                         </div>
                         <div class="form-group">
-                            <label for="loginPassword">Password (Somas password/ad password)</label>
+                            <label for="loginPassword">Password</label>
                             <input type="password" id="loginPassword" required>
                         </div>
                         <button type="submit">Login</button>
@@ -410,8 +386,6 @@
                     <!-- User data will be populated here -->
                 </tbody>
             </table>
-            <button onclick="downloadTable()">Download Users</button>
-            <button onclick="deleteUserData(index)">Delete User</button>
         </div>
 
         <!-- Search Bar -->
@@ -433,9 +407,9 @@
         <div class="pdf-grid" id="pdfGrid">
             <!-- PDF cards will be dynamically added here -->
         </div>
-    </main>     
+    </main>
 
-    <footer style="background-color: #87ceeb; padding: 1rem; text-align: center;">
+    <footer>
         <p>You are not logged in. <a href="#" onclick="showLogin()">Log in</a></p>
         <p>Data Privacy Statement</p>
         <p>© Copyright ICT Centre 2024. All rights reserved.</p>
@@ -443,6 +417,7 @@
         <p>Reset Student AD / Reset UoN Staff AD</p>
         <p>Contacts: 0204918196, 0204918197, 0204918198</p>
     </footer>
+
     <script src="app.js"></script>
 </body>
 </html>
