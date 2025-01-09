@@ -1,3 +1,8 @@
+// Supabase Client Initialization
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_KEY;
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
 // Current user session (stored in localStorage)
 let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 
@@ -32,15 +37,6 @@ function closeModal(modalId) {
   }
 }
 
-// Function to toggle menu for mobile devices
-function toggleMenu() {
-  if (navLinks) {
-    navLinks.classList.toggle('active');
-  } else {
-    console.error('Navigation links element not found!');
-  }
-}
-
 // Function to handle login form submission
 async function handleLogin(event) {
   event.preventDefault();
@@ -58,13 +54,19 @@ async function handleLogin(event) {
     return;
   }
 
-  // Validate user locally (you can replace this with Supabase if needed)
+  // Validate user with Supabase
   const { data: user, error } = await supabase
     .from('users')
     .select('*')
     .eq('regNumber', regNumber)
     .eq('password', password)
     .single();
+
+  if (error) {
+    console.error('Login error:', error);
+    alert('An error occurred. Please try again.');
+    return;
+  }
 
   if (user) {
     currentUser = user;
@@ -94,11 +96,6 @@ async function handleRegister(event) {
     alert('Passwords do not match.');
     return;
   }
-
-  // Initialize Supabase
-  const supabaseUrl = 'https://xkzjjdwalnuiwidjslvm.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrempqZHdhbG51aXdpZGpzbHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY0MDE1MTgsImV4cCI6MjA1MTk3NzUxOH0.LC0Y09mty1-8W2jqX0XFYvbAlvCuicG_E9x_2_g0KgY';
-  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
   // Check if user already exists
   const { data: existingUser, error: fetchError } = await supabase
@@ -142,11 +139,6 @@ async function updateUserTable() {
 
   userTableBody.innerHTML = ''; // Clear existing content
 
-  // Initialize Supabase
-  const supabaseUrl = 'https://xkzjjdwalnuiwidjslvm.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrempqZHdhbG51aXdpZGpzbHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY0MDE1MTgsImV4cCI6MjA1MTk3NzUxOH0.LC0Y09mty1-8W2jqX0XFYvbAlvCuicG_E9x_2_g0KgY';
-  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
   // Fetch users from Supabase
   const { data: users, error } = await supabase
     .from('users')
@@ -171,11 +163,6 @@ async function updateUserTable() {
 // Function to delete user
 async function deleteUser(userId) {
   if (confirm('Are you sure you want to delete this user?')) {
-    // Initialize Supabase
-    const supabaseUrl = 'https://xkzjjdwalnuiwidjslvm.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrempqZHdhbG51aXdpZGpzbHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY0MDE1MTgsImV4cCI6MjA1MTk3NzUxOH0.LC0Y09mty1-8W2jqX0XFYvbAlvCuicG_E9x_2_g0KgY';
-    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
     const { error } = await supabase
       .from('users')
       .delete()
@@ -287,120 +274,3 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize navigation
   updateNavigation();
 });
-
-// Initialize PDF display
-function initializePDFs() {
-  if (!pdfGrid) {
-    console.error('PDF grid element not found!');
-    return;
-  }
-
-  pdfGrid.innerHTML = ''; // Clear existing content
-
-  // Fetch PDFs tied to the HTML (if any)
-  const pdfElements = document.querySelectorAll('.pdf-card');
-  if (pdfElements.length === 0) {
-    console.warn('No PDFs found in the HTML.');
-    pdfGrid.innerHTML = '<p>No PDFs available.</p>';
-    return;
-  }
-
-  pdfElements.forEach(pdfElement => {
-    const title = pdfElement.querySelector('h3').textContent;
-    const category = pdfElement.querySelector('p:nth-child(3)').textContent.replace('Category: ', '');
-    const subcategory = pdfElement.querySelector('p:nth-child(4)').textContent.replace('Subcategory: ', '');
-    const pdf = { title, category, subcategory };
-    const card = createPDFCard(pdf);
-    if (card) {
-      pdfGrid.appendChild(card);
-    } else {
-      console.error('Failed to create PDF card for:', pdf);
-    }
-  });
-}
-
-// Create PDF card element
-function createPDFCard(pdf) {
-  if (!pdf || !pdf.title || !pdf.category || !pdf.subcategory) {
-    console.error('Invalid PDF data:', pdf);
-    return null;
-  }
-
-  const card = document.createElement('div');
-  card.className = 'pdf-card';
-  card.innerHTML = `
-    <div class="pdf-thumbnail">${pdf.title.charAt(0).toUpperCase()}</div>
-    <h3>${pdf.title}</h3>
-    <p>Category: ${pdf.category}</p>
-    <p>Subcategory: ${pdf.subcategory}</p>
-    <button onclick="viewPDF('${pdf.title}')">View PDF</button>
-  `;
-  return card;
-}
-
-// View PDF function (mock implementation)
-function viewPDF(pdfTitle) {
-  if (!currentUser) {
-    alert('Please login to view PDFs');
-    return;
-  }
-  alert(`Viewing PDF: ${pdfTitle}`);
-}
-
-// Search PDFs
-function searchPDFs() {
-  const searchTerm = searchInput.value.toLowerCase();
-  const pdfElements = document.querySelectorAll('.pdf-card');
-  const filteredPDFs = Array.from(pdfElements).filter(pdfElement => {
-    const title = pdfElement.querySelector('h3').textContent.toLowerCase();
-    return title.includes(searchTerm);
-  });
-
-  if (!pdfGrid) {
-    console.error('PDF grid element not found!');
-    return;
-  }
-
-  pdfGrid.innerHTML = ''; // Clear existing content
-
-  if (filteredPDFs.length === 0) {
-    pdfGrid.innerHTML = '<p>No PDFs found matching your search.</p>';
-    return;
-  }
-
-  filteredPDFs.forEach(pdfElement => {
-    pdfGrid.appendChild(pdfElement.cloneNode(true));
-  });
-}
-
-// Filter PDFs by category and subcategory
-function filterPDFs() {
-  const category = categorySelect.value;
-  const subcategory = subcategorySelect.value;
-
-  const pdfElements = document.querySelectorAll('.pdf-card');
-  const filteredPDFs = Array.from(pdfElements).filter(pdfElement => {
-    const pdfCategory = pdfElement.querySelector('p:nth-child(3)').textContent.replace('Category: ', '');
-    const pdfSubcategory = pdfElement.querySelector('p:nth-child(4)').textContent.replace('Subcategory: ', '');
-    return (
-      (category === '' || pdfCategory === category) &&
-      (subcategory === '' || pdfSubcategory === subcategory)
-    );
-  });
-
-  if (!pdfGrid) {
-    console.error('PDF grid element not found!');
-    return;
-  }
-
-  pdfGrid.innerHTML = ''; // Clear existing content
-
-  if (filteredPDFs.length === 0) {
-    pdfGrid.innerHTML = '<p>No PDFs found matching your filters.</p>';
-    return;
-  }
-
-  filteredPDFs.forEach(pdfElement => {
-    pdfGrid.appendChild(pdfElement.cloneNode(true));
-  });
-}
