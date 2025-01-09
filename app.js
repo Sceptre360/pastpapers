@@ -1,19 +1,10 @@
+// Initialize Supabase
+const supabaseUrl = 'https://xkzjjdwalnuiwidjslvm.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrempqZHdhbG51aXdpZGpzbHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY0MDE1MTgsImV4cCI6MjA1MTk3NzUxOH0.LC0Y09mty1-8W2jqX0XFYvbAlvCuicG_E9x_2_g0KgY';
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
 // Current user session
 let currentUser = null;
-let users = JSON.parse(localStorage.getItem('users')) || []; // Load users from local storage
-
-// Check for existing user in local storage on page load
-window.onload = function () {
-    const regNumber = localStorage.getItem('regNumber');
-    const password = localStorage.getItem('password');
-
-    if (regNumber && password) {
-        currentUser = { regNumber, password };
-        updateNavigation();
-    }
-    updateUserTable();
-    initializePDFs(); // Initialize PDF display
-};
 
 // Mock data for PDFs
 const pdfs = [
@@ -28,16 +19,36 @@ const pdfs = [
 // Initialize PDF display
 function initializePDFs() {
     const pdfGrid = document.getElementById('pdfGrid');
-    pdfGrid.innerHTML = '';
+    if (!pdfGrid) {
+        console.error('PDF grid element not found!');
+        return;
+    }
+
+    pdfGrid.innerHTML = ''; // Clear existing content
+
+    if (pdfs.length === 0) {
+        console.warn('No PDFs found in the array.');
+        pdfGrid.innerHTML = '<p>No PDFs available.</p>'; // Display a message if no PDFs are found
+        return;
+    }
 
     pdfs.forEach(pdf => {
         const card = createPDFCard(pdf);
-        pdfGrid.appendChild(card);
+        if (card) {
+            pdfGrid.appendChild(card);
+        } else {
+            console.error('Failed to create PDF card for:', pdf);
+        }
     });
 }
 
 // Create PDF card element
 function createPDFCard(pdf) {
+    if (!pdf || !pdf.title || !pdf.category || !pdf.subcategory) {
+        console.error('Invalid PDF data:', pdf);
+        return null;
+    }
+
     const card = document.createElement('div');
     card.className = 'pdf-card';
     card.innerHTML = `
@@ -50,6 +61,15 @@ function createPDFCard(pdf) {
     return card;
 }
 
+// View PDF function (mock implementation)
+function viewPDF(pdfId) {
+    if (!currentUser) {
+        alert('Please login to view PDFs');
+        return;
+    }
+    alert(`Viewing PDF ${pdfId}`);
+}
+
 // Search PDFs
 function searchPDFs() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
@@ -58,10 +78,25 @@ function searchPDFs() {
     );
 
     const pdfGrid = document.getElementById('pdfGrid');
-    pdfGrid.innerHTML = '';
+    if (!pdfGrid) {
+        console.error('PDF grid element not found!');
+        return;
+    }
+
+    pdfGrid.innerHTML = ''; // Clear existing content
+
+    if (filteredPDFs.length === 0) {
+        pdfGrid.innerHTML = '<p>No PDFs found matching your search.</p>';
+        return;
+    }
+
     filteredPDFs.forEach(pdf => {
         const card = createPDFCard(pdf);
-        pdfGrid.appendChild(card);
+        if (card) {
+            pdfGrid.appendChild(card);
+        } else {
+            console.error('Failed to create PDF card for:', pdf);
+        }
     });
 }
 
@@ -78,7 +113,7 @@ function closeModal(modalId) {
     document.getElementById(modalId).style.display = 'none';
 }
 
-function handleLogin(event) {
+async function handleLogin(event) {
     event.preventDefault();
     const regNumber = document.getElementById('loginReg').value;
     const password = document.getElementById('loginPassword').value;
@@ -92,14 +127,16 @@ function handleLogin(event) {
         return;
     }
 
-    // Validate user from localStorage
-    const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
-    const user = storedUsers.find(user => user.regNumber === regNumber && user.password === password);
+    // Validate user from Supabase
+    const { data: user, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('regNumber', regNumber)
+        .eq('password', password)
+        .single();
 
     if (user) {
         currentUser = user;
-        localStorage.setItem('regNumber', regNumber);
-        localStorage.setItem('password', password);
         alert('Login successful!');
         updateNavigation();
     } else {
@@ -107,7 +144,7 @@ function handleLogin(event) {
     }
 }
 
-function handleRegister(event) {
+async function handleRegister(event) {
     event.preventDefault();
     const regNumber = document.getElementById('regNumber').value;
     const password = document.getElementById('regPassword').value;
@@ -118,53 +155,86 @@ function handleRegister(event) {
         return;
     }
 
-    const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
-    const existingUser = storedUsers.find(user => user.regNumber === regNumber);
+    // Check if user already exists
+    const { data: existingUser, error: fetchError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('regNumber', regNumber)
+        .single();
 
     if (existingUser) {
         alert('Username already exists. Please choose a different one.');
         return;
     }
 
-    // Store user information in local storage
-    const newUser = { regNumber, password, status: 'Active' };
-    storedUsers.push(newUser);
-    localStorage.setItem('users', JSON.stringify(storedUsers));
-    users = storedUsers; // Update the users array
-    alert('Registration successful! You can now log in.');
-    closeModal('registerModal');
-    updateUserTable(); // Update the user management table
-}
+    // Add new user to Supabase
+    const { data, error } = await supabase
+        .from('users')
+        .insert([{ regNumber, password, status: 'Active' }]);
 
-function updateUserTable() {
-    const userTableBody = document.getElementById('userTableBody');
-    userTableBody.innerHTML = '';
-
-    users.forEach((user, index) => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${user.regNumber}</td>
-            <td>${user.password}</td>
-            <td>${user.status}</td>
-            <td><button onclick="deleteUser(${index})">Delete</button></td>
-        `;
-        userTableBody.appendChild(row);
-    });
-}
-
-function deleteUser(index) {
-    if (index >= 0 && index < users.length) {
-        users.splice(index, 1); // Remove the user at the specified index
-        localStorage.setItem('users', JSON.stringify(users)); // Update local storage
-        updateUserTable(); // Update the table
-        alert('User deleted successfully.');
+    if (error) {
+        console.error('Error adding user: ', error);
+        alert('Registration failed. Please try again.');
     } else {
-        alert('Invalid user index.');
+        alert('Registration successful! You can now log in.');
+        closeModal('registerModal');
+        updateUserTable(); // Refresh the user table
+    }
+}
+
+async function updateUserTable() {
+    const userTableBody = document.getElementById('userTableBody');
+    if (!userTableBody) {
+        console.error('User table body element not found!');
+        return;
+    }
+
+    userTableBody.innerHTML = ''; // Clear existing content
+
+    const { data: users, error } = await supabase
+        .from('users')
+        .select('*');
+
+    if (error) {
+        console.error('Error fetching users: ', error);
+    } else {
+        users.forEach((user) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${user.regNumber}</td>
+                <td>${user.password}</td>
+                <td>${user.status}</td>
+                <td><button onclick="deleteUser('${user.id}')">Delete</button></td>
+            `;
+            userTableBody.appendChild(row);
+        });
+    }
+}
+
+async function deleteUser(userId) {
+    if (confirm('Are you sure you want to delete this user?')) {
+        const { error } = await supabase
+            .from('users')
+            .delete()
+            .eq('id', userId);
+
+        if (error) {
+            console.error('Error deleting user: ', error);
+            alert('An error occurred. Please try again.');
+        } else {
+            alert('User deleted successfully.');
+            updateUserTable(); // Refresh the table
+        }
     }
 }
 
 function updateNavigation() {
     const navLinks = document.getElementById('navLinks');
+    if (!navLinks) {
+        console.error('Navigation links element not found!');
+        return;
+    }
+
     if (currentUser) {
         navLinks.innerHTML = `
             <span>Welcome, ${currentUser.regNumber}</span>
@@ -180,19 +250,8 @@ function updateNavigation() {
 
 function logout() {
     currentUser = null;
-    localStorage.removeItem('regNumber');
-    localStorage.removeItem('password');
     document.getElementById('userManagement').style.display = 'none'; // Hide user management on logout
     updateNavigation();
-}
-
-// View PDF function (mock implementation)
-function viewPDF(pdfId) {
-    if (!currentUser) {
-        alert('Please login to view PDFs');
-        return;
-    }
-    alert(`Viewing PDF ${pdfId}`);
 }
 
 // Array of images and motivational messages
@@ -222,7 +281,12 @@ function displayMotivation() {
 setInterval(displayMotivation, 5000);
 
 // Initialize the application
-initializePDFs();
+window.onload = function () {
+    console.log('Initializing application...');
+    initializePDFs(); // Initialize PDF display
+    updateUserTable(); // Initialize user table
+    updateNavigation(); // Initialize navigation
+};
 
 function toggleMenu() {
     const navLinks = document.getElementById('navLinks');
