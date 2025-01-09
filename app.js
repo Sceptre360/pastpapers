@@ -84,22 +84,34 @@ async function handleRegister(event) {
   const password = document.getElementById('regPassword').value;
   const confirmPassword = document.getElementById('confirmPassword').value;
 
-  if (password !== confirmPassword) {
-    alert('Passwords do not match');
+  // Validate inputs
+  if (!regNumber || !password || !confirmPassword) {
+    alert('Please fill in all fields.');
     return;
   }
 
-  // Initialize Supabase only when needed
+  if (password !== confirmPassword) {
+    alert('Passwords do not match.');
+    return;
+  }
+
+  // Initialize Supabase
   const supabaseUrl = 'https://xkzjjdwalnuiwidjslvm.supabase.co';
   const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrempqZHdhbG51aXdpZGpzbHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY0MDE1MTgsImV4cCI6MjA1MTk3NzUxOH0.LC0Y09mty1-8W2jqX0XFYvbAlvCuicG_E9x_2_g0KgY';
   const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
-  // Check if user already exists in Supabase
+  // Check if user already exists
   const { data: existingUser, error: fetchError } = await supabase
     .from('users')
     .select('*')
     .eq('regNumber', regNumber)
     .single();
+
+  if (fetchError) {
+    console.error('Error checking existing user:', fetchError);
+    alert('An error occurred. Please try again.');
+    return;
+  }
 
   if (existingUser) {
     alert('Username already exists. Please choose a different one.');
@@ -112,12 +124,12 @@ async function handleRegister(event) {
     .insert([{ regNumber, password, status: 'Active' }]);
 
   if (error) {
-    console.error('Error adding user: ', error);
+    console.error('Error adding user:', error);
     alert('Registration failed. Please try again.');
   } else {
     alert('Registration successful! You can now log in.');
     closeModal('registerModal');
-    updateUserTable();
+    updateUserTable(); // Refresh the user table
   }
 }
 
@@ -130,17 +142,18 @@ async function updateUserTable() {
 
   userTableBody.innerHTML = ''; // Clear existing content
 
-  // Initialize Supabase only when needed
+  // Initialize Supabase
   const supabaseUrl = 'https://xkzjjdwalnuiwidjslvm.supabase.co';
   const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrempqZHdhbG51aXdpZGpzbHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY0MDE1MTgsImV4cCI6MjA1MTk3NzUxOH0.LC0Y09mty1-8W2jqX0XFYvbAlvCuicG_E9x_2_g0KgY';
   const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
+  // Fetch users from Supabase
   const { data: users, error } = await supabase
     .from('users')
     .select('*');
 
   if (error) {
-    console.error('Error fetching users: ', error);
+    console.error('Error fetching users:', error);
   } else {
     users.forEach((user) => {
       const row = document.createElement('tr');
@@ -158,7 +171,7 @@ async function updateUserTable() {
 // Function to delete user
 async function deleteUser(userId) {
   if (confirm('Are you sure you want to delete this user?')) {
-    // Initialize Supabase only when needed
+    // Initialize Supabase
     const supabaseUrl = 'https://xkzjjdwalnuiwidjslvm.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrempqZHdhbG51aXdpZGpzbHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY0MDE1MTgsImV4cCI6MjA1MTk3NzUxOH0.LC0Y09mty1-8W2jqX0XFYvbAlvCuicG_E9x_2_g0KgY';
     const supabase = supabase.createClient(supabaseUrl, supabaseKey);
@@ -169,11 +182,11 @@ async function deleteUser(userId) {
       .eq('id', userId);
 
     if (error) {
-      console.error('Error deleting user: ', error);
+      console.error('Error deleting user:', error);
       alert('An error occurred. Please try again.');
     } else {
       alert('User deleted successfully.');
-      updateUserTable();
+      updateUserTable(); // Refresh the user table
     }
   }
 }
