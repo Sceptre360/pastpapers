@@ -1,16 +1,6 @@
 // Current user session (stored in localStorage)
 let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 
-// Mock data for PDFs
-const pdfs = [
-  { id: 1, title: 'Mechanics PDF 1', category: 'Mechanics', subcategory: '1' },
-  { id: 2, title: 'Mechanics PDF 2', category: 'Mechanics', subcategory: '2' },
-  { id: 3, title: 'Geospatial PDF 1', category: 'Geospatial', subcategory: '1' },
-  { id: 4, title: 'Geospatial PDF 2', category: 'Geospatial', subcategory: '2' },
-  { id: 5, title: 'Civil PDF 1', category: 'Civil', subcategory: '1' },
-  { id: 6, title: 'Civil PDF 2', category: 'Civil', subcategory: '2' },
-];
-
 // DOM Elements
 let navLinks, loginModal, registerModal, userManagement, userTableBody, pdfGrid, searchInput, categorySelect, subcategorySelect, menuToggle, loginForm, registerForm;
 
@@ -294,13 +284,19 @@ function initializePDFs() {
 
   pdfGrid.innerHTML = ''; // Clear existing content
 
-  if (pdfs.length === 0) {
-    console.warn('No PDFs found in the array.');
+  // Fetch PDFs tied to the HTML (if any)
+  const pdfElements = document.querySelectorAll('.pdf-card');
+  if (pdfElements.length === 0) {
+    console.warn('No PDFs found in the HTML.');
     pdfGrid.innerHTML = '<p>No PDFs available.</p>';
     return;
   }
 
-  pdfs.forEach(pdf => {
+  pdfElements.forEach(pdfElement => {
+    const title = pdfElement.querySelector('h3').textContent;
+    const category = pdfElement.querySelector('p:nth-child(3)').textContent.replace('Category: ', '');
+    const subcategory = pdfElement.querySelector('p:nth-child(4)').textContent.replace('Subcategory: ', '');
+    const pdf = { title, category, subcategory };
     const card = createPDFCard(pdf);
     if (card) {
       pdfGrid.appendChild(card);
@@ -324,26 +320,28 @@ function createPDFCard(pdf) {
     <h3>${pdf.title}</h3>
     <p>Category: ${pdf.category}</p>
     <p>Subcategory: ${pdf.subcategory}</p>
-    <button onclick="viewPDF(${pdf.id})">View PDF</button>
+    <button onclick="viewPDF('${pdf.title}')">View PDF</button>
   `;
   return card;
 }
 
 // View PDF function (mock implementation)
-function viewPDF(pdfId) {
+function viewPDF(pdfTitle) {
   if (!currentUser) {
     alert('Please login to view PDFs');
     return;
   }
-  alert(`Viewing PDF ${pdfId}`);
+  alert(`Viewing PDF: ${pdfTitle}`);
 }
 
 // Search PDFs
 function searchPDFs() {
   const searchTerm = searchInput.value.toLowerCase();
-  const filteredPDFs = pdfs.filter(pdf =>
-    pdf.title.toLowerCase().includes(searchTerm)
-  );
+  const pdfElements = document.querySelectorAll('.pdf-card');
+  const filteredPDFs = Array.from(pdfElements).filter(pdfElement => {
+    const title = pdfElement.querySelector('h3').textContent.toLowerCase();
+    return title.includes(searchTerm);
+  });
 
   if (!pdfGrid) {
     console.error('PDF grid element not found!');
@@ -357,13 +355,8 @@ function searchPDFs() {
     return;
   }
 
-  filteredPDFs.forEach(pdf => {
-    const card = createPDFCard(pdf);
-    if (card) {
-      pdfGrid.appendChild(card);
-    } else {
-      console.error('Failed to create PDF card for:', pdf);
-    }
+  filteredPDFs.forEach(pdfElement => {
+    pdfGrid.appendChild(pdfElement.cloneNode(true));
   });
 }
 
@@ -372,10 +365,13 @@ function filterPDFs() {
   const category = categorySelect.value;
   const subcategory = subcategorySelect.value;
 
-  const filteredPDFs = pdfs.filter(pdf => {
+  const pdfElements = document.querySelectorAll('.pdf-card');
+  const filteredPDFs = Array.from(pdfElements).filter(pdfElement => {
+    const pdfCategory = pdfElement.querySelector('p:nth-child(3)').textContent.replace('Category: ', '');
+    const pdfSubcategory = pdfElement.querySelector('p:nth-child(4)').textContent.replace('Subcategory: ', '');
     return (
-      (category === '' || pdf.category === category) &&
-      (subcategory === '' || pdf.subcategory === subcategory)
+      (category === '' || pdfCategory === category) &&
+      (subcategory === '' || pdfSubcategory === subcategory)
     );
   });
 
@@ -391,12 +387,7 @@ function filterPDFs() {
     return;
   }
 
-  filteredPDFs.forEach(pdf => {
-    const card = createPDFCard(pdf);
-    if (card) {
-      pdfGrid.appendChild(card);
-    } else {
-      console.error('Failed to create PDF card for:', pdf);
-    }
+  filteredPDFs.forEach(pdfElement => {
+    pdfGrid.appendChild(pdfElement.cloneNode(true));
   });
 }
