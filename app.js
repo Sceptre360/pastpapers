@@ -124,6 +124,7 @@ async function handleLogin(event) {
         alert('Admin login successful!');
         document.getElementById('userManagement').style.display = 'block'; // Show user management
         updateNavigation();
+        closeModal('loginModal');
         return;
     }
 
@@ -139,6 +140,7 @@ async function handleLogin(event) {
         currentUser = user;
         alert('Login successful!');
         updateNavigation();
+        closeModal('loginModal');
     } else {
         alert('Invalid credentials. Please check your details.');
     }
@@ -286,6 +288,10 @@ window.onload = function () {
     initializePDFs(); // Initialize PDF display
     updateUserTable(); // Initialize user table
     updateNavigation(); // Initialize navigation
+
+    // Attach event listeners to login and register forms
+    document.getElementById('loginForm').addEventListener('submit', handleLogin);
+    document.getElementById('registerForm').addEventListener('submit', handleRegister);
 };
 
 function toggleMenu() {
