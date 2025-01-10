@@ -1,4 +1,3 @@
-// api/login.js
 export default async (req, res) => {
     if (req.method === 'POST') {
       const { username, password } = req.body;
@@ -11,7 +10,7 @@ export default async (req, res) => {
   
         // Fetch existing users from Blob Storage
         let users = [];
-        const blobResponse = await fetch('https://xgfyqlneoat12ohc.public.blob.vercel-storage.com/users-PUyoROV6UOXi6jtpR7ev5Uk5CjpSyW.json');
+        const blobResponse = await fetch('https://xgfyqlneoat12ohc.public.blob.vercel-storage.com/users.json');
         if (blobResponse.ok) {
           users = await blobResponse.json();
         }
