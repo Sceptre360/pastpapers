@@ -80,7 +80,7 @@ async function handleLogin(event) {
     if (response.ok) {
       alert("Login successful!");
       closeModal("loginModal");
-      // Redirect or show user-specific content
+      // Show welcome message
       document.getElementById("userGreeting").innerText = `Welcome, ${loginReg}!`;
       document.getElementById("userGreeting").style.display = "block";
     } else {
@@ -121,3 +121,10 @@ function searchPDFs() {
 function viewPDF(title) {
   alert(`Opening PDF: ${title}`);
 }
+
+// Attach event listeners
+document.getElementById("registerForm").addEventListener("submit", handleRegister);
+document.getElementById("loginForm").addEventListener("submit", handleLogin);
+document.getElementById("categorySelect").addEventListener("change", filterPDFs);
+document.getElementById("subcategorySelect").addEventListener("change", filterPDFs);
+document.getElementById("searchInput").addEventListener("input", searchPDFs);
