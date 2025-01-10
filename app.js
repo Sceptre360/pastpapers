@@ -69,11 +69,12 @@ async function handleLogin(event) {
     updateNavigation();
     closeModal('loginModal');
 
-    // Cross-check with Supabase (optional)
+    // Sync with Supabase (optional)
     const supabaseUrl = process.env.SUPABASE_URL;
     const supabaseKey = process.env.SUPABASE_KEY;
     const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
+    // Check if user exists in Supabase
     const { data: supabaseUser, error } = await supabase
       .from('users')
       .select('*')
@@ -81,10 +82,17 @@ async function handleLogin(event) {
       .eq('password', password)
       .single();
 
-    if (supabaseUser) {
-      console.log('User validated with Supabase:', supabaseUser);
-    } else {
-      console.error('Supabase validation failed:', error);
+    if (!supabaseUser) {
+      // If user doesn't exist in Supabase, add them
+      const { data, error } = await supabase
+        .from('users')
+        .insert([user]);
+
+      if (error) {
+        console.error('Error syncing user with Supabase:', error);
+      } else {
+        console.log('User synced with Supabase:', data);
+      }
     }
   } else {
     alert('Invalid credentials. Please check your details.');
@@ -120,7 +128,7 @@ async function handleRegister(event) {
   alert('Registration successful! You can now log in.');
   closeModal('registerModal');
 
-  // Sync with Supabase (optional)
+  // Sync with Supabase
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_KEY;
   const supabase = supabase.createClient(supabaseUrl, supabaseKey);
@@ -171,7 +179,7 @@ async function deleteUser(regNumber) {
     alert('User deleted successfully.');
     updateUserTable();
 
-    // Sync with Supabase (optional)
+    // Sync with Supabase
     const supabaseUrl = process.env.SUPABASE_URL;
     const supabaseKey = process.env.SUPABASE_KEY;
     const supabase = supabase.createClient(supabaseUrl, supabaseKey);
