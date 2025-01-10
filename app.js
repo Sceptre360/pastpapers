@@ -60,7 +60,6 @@ async function handleRegister(event) {
   }
 }
 
-// Handle user login
 async function handleLogin(event) {
   event.preventDefault();
   const loginReg = document.getElementById("loginReg").value;
@@ -79,7 +78,13 @@ async function handleLogin(event) {
       body: JSON.stringify({ username: loginReg, password: loginPassword }),
     });
 
+    // Log the raw response for debugging
+    console.log('Raw response:', response);
+
+    // Parse the response as JSON
     const result = await response.json();
+    console.log('Parsed response:', result);
+
     if (response.ok) {
       alert("Login successful!");
       closeModal("loginModal");
@@ -87,6 +92,7 @@ async function handleLogin(event) {
       document.getElementById("userGreeting").innerText = `Welcome, ${loginReg}!`;
       document.getElementById("userGreeting").style.display = "block";
     } else {
+      // Display the error message from the serverless function
       alert(result.message || 'Login failed!');
     }
   } catch (error) {
@@ -94,7 +100,7 @@ async function handleLogin(event) {
     alert('Login failed!');
   }
 }
-
+     
 // Filter PDFs by category and subcategory
 function filterPDFs() {
   const category = document.getElementById("categorySelect").value;

@@ -2,8 +2,8 @@
 export default async (req, res) => {
     if (req.method === 'POST') {
       const { username, password } = req.body;
-      const trimmedUsername = username.trim(); // Trim the username
-      const trimmedPassword = password.trim(); // Trim the password
+      const trimmedUsername = username.trim();
+      const trimmedPassword = password.trim();
   
       try {
         // Fetch existing users from Blob Storage
@@ -13,7 +13,7 @@ export default async (req, res) => {
           users = await blobResponse.json();
         }
   
-        // Find the user (compare trimmed values)
+        // Find the user (case-sensitive comparison)
         const user = users.find(
           user => user.username === trimmedUsername &&
                   user.password === trimmedPassword
