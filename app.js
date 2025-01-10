@@ -1,7 +1,6 @@
 // Current user session (stored in localStorage)
 let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 
-
 // DOM Elements
 let navLinks, loginModal, registerModal, userManagement, userTableBody, pdfGrid, searchInput, categorySelect, subcategorySelect, menuToggle, loginForm, registerForm;
 
@@ -59,7 +58,12 @@ async function handleLogin(event) {
     return;
   }
 
-  // Validate user locally (you can replace this with Supabase if needed)
+  // Initialize Supabase only when needed
+  const supabaseUrl = 'https://xkzjjdwalnuiwidjslvm.supabase.co';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrempqZHdhbG51aXdpZGpzbHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY0MDE1MTgsImV4cCI6MjA1MTk3NzUxOH0.LC0Y09mty1-8W2jqX0XFYvbAlvCuicG_E9x_2_g0KgY';
+  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+  // Validate user with Supabase
   const { data: user, error } = await supabase
     .from('users')
     .select('*')
