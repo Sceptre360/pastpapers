@@ -58,18 +58,9 @@ async function handleLogin(event) {
     return;
   }
 
-  // Initialize Supabase only when needed
-  const supabaseUrl = 'https://xkzjjdwalnuiwidjslvm.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrempqZHdhbG51aXdpZGpzbHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY0MDE1MTgsImV4cCI6MjA1MTk3NzUxOH0.LC0Y09mty1-8W2jqX0XFYvbAlvCuicG_E9x_2_g0KgY';
-  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-  // Validate user with Supabase
-  const { data: user, error } = await supabase
-    .from('users')
-    .select('*')
-    .eq('regNumber', regNumber)
-    .eq('password', password)
-    .single();
+  // Validate user locally from localStorage
+  const users = JSON.parse(localStorage.getItem('users')) || [];
+  const user = users.find(u => u.regNumber === regNumber && u.password === password);
 
   if (user) {
     currentUser = user;
@@ -77,6 +68,24 @@ async function handleLogin(event) {
     alert('Login successful!');
     updateNavigation();
     closeModal('loginModal');
+
+    // Cross-check with Supabase (optional)
+    const supabaseUrl = 'https://xkzjjdwalnuiwidjslvm.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrempqZHdhbG51aXdpZGpzbHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY0MDE1MTgsImV4cCI6MjA1MTk3NzUxOH0.LC0Y09mty1-8W2jqX0XFYvbAlvCuicG_E9x_2_g0KgY';
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+    const { data: supabaseUser, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('regNumber', regNumber)
+      .eq('password', password)
+      .single();
+
+    if (supabaseUser) {
+      console.log('User validated with Supabase:', supabaseUser);
+    } else {
+      console.error('Supabase validation failed:', error);
+    }
   } else {
     alert('Invalid credentials. Please check your details.');
   }
@@ -94,35 +103,36 @@ async function handleRegister(event) {
     return;
   }
 
-  // Initialize Supabase only when needed
-  const supabaseUrl = 'https://xkzjjdwalnuiwidjslvm.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrempqZHdhbG51aXdpZGpzbHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY0MDE1MTgsImV4cCI6MjA1MTk3NzUxOH0.LC0Y09mty1-8W2jqX0XFYvbAlvCuicG_E9x_2_g0KgY';
-  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-  // Check if user already exists in Supabase
-  const { data: existingUser, error: fetchError } = await supabase
-    .from('users')
-    .select('*')
-    .eq('regNumber', regNumber)
-    .single();
+  // Check if user already exists locally
+  const users = JSON.parse(localStorage.getItem('users')) || [];
+  const existingUser = users.find(u => u.regNumber === regNumber);
 
   if (existingUser) {
     alert('Username already exists. Please choose a different one.');
     return;
   }
 
-  // Add new user to Supabase
+  // Add new user to localStorage
+  const newUser = { regNumber, password, status: 'Active' };
+  users.push(newUser);
+  localStorage.setItem('users', JSON.stringify(users));
+
+  alert('Registration successful! You can now log in.');
+  closeModal('registerModal');
+
+  // Sync with Supabase (optional)
+  const supabaseUrl = 'https://xkzjjdwalnuiwidjslvm.supabase.co';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrempqZHdhbG51aXdpZGpzbHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY0MDE1MTgsImV4cCI6MjA1MTk3NzUxOH0.LC0Y09mty1-8W2jqX0XFYvbAlvCuicG_E9x_2_g0KgY';
+  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
   const { data, error } = await supabase
     .from('users')
-    .insert([{ regNumber, password, status: 'Active' }]);
+    .insert([newUser]);
 
   if (error) {
-    console.error('Error adding user: ', error);
-    alert('Registration failed. Please try again.');
+    console.error('Error adding user to Supabase: ', error);
   } else {
-    alert('Registration successful! You can now log in.');
-    closeModal('registerModal');
-    updateUserTable();
+    console.log('User added to Supabase:', data);
   }
 }
 
@@ -135,35 +145,33 @@ async function updateUserTable() {
 
   userTableBody.innerHTML = ''; // Clear existing content
 
-  // Initialize Supabase only when needed
-  const supabaseUrl = 'https://xkzjjdwalnuiwidjslvm.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrempqZHdhbG51aXdpZGpzbHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY0MDE1MTgsImV4cCI6MjA1MTk3NzUxOH0.LC0Y09mty1-8W2jqX0XFYvbAlvCuicG_E9x_2_g0KgY';
-  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+  // Fetch users from localStorage
+  const users = JSON.parse(localStorage.getItem('users')) || [];
 
-  const { data: users, error } = await supabase
-    .from('users')
-    .select('*');
-
-  if (error) {
-    console.error('Error fetching users: ', error);
-  } else {
-    users.forEach((user) => {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${user.regNumber}</td>
-        <td>${user.password}</td>
-        <td>${user.status}</td>
-        <td><button onclick="deleteUser('${user.id}')">Delete</button></td>
-      `;
-      userTableBody.appendChild(row);
-    });
-  }
+  users.forEach((user) => {
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${user.regNumber}</td>
+      <td>${user.password}</td>
+      <td>${user.status}</td>
+      <td><button onclick="deleteUser('${user.regNumber}')">Delete</button></td>
+    `;
+    userTableBody.appendChild(row);
+  });
 }
 
 // Function to delete user
-async function deleteUser(userId) {
+async function deleteUser(regNumber) {
   if (confirm('Are you sure you want to delete this user?')) {
-    // Initialize Supabase only when needed
+    // Remove user from localStorage
+    const users = JSON.parse(localStorage.getItem('users')) || [];
+    const updatedUsers = users.filter(u => u.regNumber !== regNumber);
+    localStorage.setItem('users', JSON.stringify(updatedUsers));
+
+    alert('User deleted successfully.');
+    updateUserTable();
+
+    // Sync with Supabase (optional)
     const supabaseUrl = 'https://xkzjjdwalnuiwidjslvm.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrempqZHdhbG51aXdpZGpzbHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY0MDE1MTgsImV4cCI6MjA1MTk3NzUxOH0.LC0Y09mty1-8W2jqX0XFYvbAlvCuicG_E9x_2_g0KgY';
     const supabase = supabase.createClient(supabaseUrl, supabaseKey);
@@ -171,14 +179,10 @@ async function deleteUser(userId) {
     const { error } = await supabase
       .from('users')
       .delete()
-      .eq('id', userId);
+      .eq('regNumber', regNumber);
 
     if (error) {
-      console.error('Error deleting user: ', error);
-      alert('An error occurred. Please try again.');
-    } else {
-      alert('User deleted successfully.');
-      updateUserTable();
+      console.error('Error deleting user from Supabase: ', error);
     }
   }
 }
