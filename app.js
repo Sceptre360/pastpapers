@@ -66,6 +66,9 @@ async function handleLogin(event) {
   const loginReg = document.getElementById("loginReg").value;
   const loginPassword = document.getElementById("loginPassword").value;
 
+  // Log the payload being sent
+  console.log('Sending login request:', { username: loginReg, password: loginPassword });
+
   // Send data to the serverless function
   try {
     const response = await fetch('/api/login', {
