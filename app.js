@@ -70,8 +70,8 @@ async function handleLogin(event) {
     closeModal('loginModal');
 
     // Cross-check with Supabase (optional)
-    const supabaseUrl = 'https://xkzjjdwalnuiwidjslvm.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrempqZHdhbG51aXdpZGpzbHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY0MDE1MTgsImV4cCI6MjA1MTk3NzUxOH0.LC0Y09mty1-8W2jqX0XFYvbAlvCuicG_E9x_2_g0KgY';
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_KEY;
     const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
     const { data: supabaseUser, error } = await supabase
@@ -121,8 +121,8 @@ async function handleRegister(event) {
   closeModal('registerModal');
 
   // Sync with Supabase (optional)
-  const supabaseUrl = 'https://xkzjjdwalnuiwidjslvm.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrempqZHdhbG51aXdpZGpzbHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY0MDE1MTgsImV4cCI6MjA1MTk3NzUxOH0.LC0Y09mty1-8W2jqX0XFYvbAlvCuicG_E9x_2_g0KgY';
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_KEY;
   const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
   const { data, error } = await supabase
@@ -172,8 +172,8 @@ async function deleteUser(regNumber) {
     updateUserTable();
 
     // Sync with Supabase (optional)
-    const supabaseUrl = 'https://xkzjjdwalnuiwidjslvm.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrempqZHdhbG51aXdpZGpzbHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY0MDE1MTgsImV4cCI6MjA1MTk3NzUxOH0.LC0Y09mty1-8W2jqX0XFYvbAlvCuicG_E9x_2_g0KgY';
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_KEY;
     const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
     const { error } = await supabase
