@@ -1,408 +1,163 @@
-// Current user session (stored in localStorage)
-let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+// app.js
 
-// DOM Elements
-let navLinks, loginModal, registerModal, userManagement, userTableBody, pdfGrid, searchInput, categorySelect, subcategorySelect, menuToggle, loginForm, registerForm;
-
-// Function to show login modal
-function showLogin() {
-  if (loginModal) {
-    loginModal.style.display = 'block';
-  } else {
-    console.error('Login modal not found!');
-  }
+// Utility to handle modal visibility
+function showModal(modalId) {
+  document.getElementById(modalId).style.display = 'block';
 }
 
-// Function to show register modal
-function showRegister() {
-  if (registerModal) {
-    registerModal.style.display = 'block';
-  } else {
-    console.error('Register modal not found!');
-  }
-}
-
-// Function to close modal
 function closeModal(modalId) {
-  const modal = document.getElementById(modalId);
-  if (modal) {
-    modal.style.display = 'none';
-  } else {
-    console.error(`Modal with ID ${modalId} not found!`);
-  }
+  document.getElementById(modalId).style.display = 'none';
 }
 
-// Function to toggle menu for mobile devices
+// Toggle navigation menu on mobile
 function toggleMenu() {
-  if (navLinks) {
-    navLinks.classList.toggle('active');
-  } else {
-    console.error('Navigation links element not found!');
-  }
+  const navLinks = document.getElementById("navLinks");
+  navLinks.classList.toggle("active");
 }
 
-// Function to handle login form submission
-async function handleLogin(event) {
-  event.preventDefault();
-  const regNumber = document.getElementById('loginReg').value;
-  const password = document.getElementById('loginPassword').value;
-
-  // Check for admin credentials (locally)
-  if (regNumber === 'admin' && password === 'admin123') {
-    currentUser = { regNumber, password, isAdmin: true };
-    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-    alert('Admin login successful!');
-    userManagement.style.display = 'block';
-    updateNavigation();
-    closeModal('loginModal');
-    return;
-  }
-
-  // Validate user locally from localStorage
-  const users = JSON.parse(localStorage.getItem('users')) || [];
-  const user = users.find(u => u.regNumber === regNumber && u.password === password);
-
-  if (user) {
-    currentUser = user;
-    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-    alert('Login successful!');
-    updateNavigation();
-    closeModal('loginModal');
-
-    // Sync with Supabase (optional)
-    const supabaseUrl = process.env.SUPABASE_SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    const { data: supabaseUser, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('regNumber', regNumber)
-      .eq('password', password)
-      .single();
-
-    if (!supabaseUser) {
-      // If user doesn't exist in Supabase, add them
-      const { data, error } = await supabase
-        .from('users')
-        .insert([user]);
-
-      if (error) {
-        console.error('Error syncing user with Supabase:', error);
-      } else {
-        console.log('User synced with Supabase:', data);
-      }
-    }
-  } else {
-    alert('Invalid credentials. Please check your details.');
-  }
+// Show login modal
+function showLogin() {
+  showModal("loginModal");
 }
 
-// Function to handle register form submission
+// Show register modal
+function showRegister() {
+  showModal("registerModal");
+}
+
+// Handle user registration
 async function handleRegister(event) {
   event.preventDefault();
-  const regNumber = document.getElementById('regNumber').value;
-  const password = document.getElementById('regPassword').value;
-  const confirmPassword = document.getElementById('confirmPassword').value;
+  const regNumber = document.getElementById("regNumber").value;
+  const regPassword = document.getElementById("regPassword").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
 
-  if (password !== confirmPassword) {
-    alert('Passwords do not match');
-    return;
+  if (regPassword !== confirmPassword) {
+      alert("Passwords do not match!");
+      return;
   }
 
-  // Check if user already exists locally
-  const users = JSON.parse(localStorage.getItem('users')) || [];
-  const existingUser = users.find(u => u.regNumber === regNumber);
-
-  if (existingUser) {
-    alert('Username already exists. Please choose a different one.');
-    return;
+  const users = JSON.parse(localStorage.getItem("users")) || [];
+  if (users.some(user => user.username === regNumber)) {
+      alert("User with this registration number already exists!");
+      return;
   }
 
-  // Add new user to localStorage
-  const newUser = { regNumber, password, status: 'Active' };
-  users.push(newUser);
-  localStorage.setItem('users', JSON.stringify(users));
+  // Send data to the serverless function
+  try {
+    const response = await fetch('/api/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username: regNumber, password: regPassword }),
+    });
 
-  alert('Registration successful! You can now log in.');
-  closeModal('registerModal');
-
-  // Sync with Supabase
-  const supabaseUrl = process.env.SUPABASE_SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  const supabase = createClient(supabaseUrl, supabaseKey);
-
-  const { data, error } = await supabase
-    .from('users')
-    .insert([newUser]);
-
-  if (error) {
-    console.error('Error adding user to Supabase: ', error);
-  } else {
-    console.log('User added to Supabase:', data);
-  }
-}
-
-// Function to update user table
-async function updateUserTable() {
-  if (!userTableBody) {
-    console.error('User table body element not found!');
-    return;
-  }
-
-  userTableBody.innerHTML = ''; // Clear existing content
-
-  // Fetch users from localStorage
-  const users = JSON.parse(localStorage.getItem('users')) || [];
-
-  users.forEach((user) => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${user.regNumber}</td>
-      <td>${user.password}</td>
-      <td>${user.status}</td>
-      <td><button onclick="deleteUser('${user.regNumber}')">Delete</button></td>
-    `;
-    userTableBody.appendChild(row);
-  });
-}
-
-// Function to delete user
-async function deleteUser(regNumber) {
-  if (confirm('Are you sure you want to delete this user?')) {
-    // Remove user from localStorage
-    const users = JSON.parse(localStorage.getItem('users')) || [];
-    const updatedUsers = users.filter(u => u.regNumber !== regNumber);
-    localStorage.setItem('users', JSON.stringify(updatedUsers));
-
-    alert('User deleted successfully.');
-    updateUserTable();
-
-    // Sync with Supabase
-    const supabaseUrl = process.env.SUPABASE_SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    const { error } = await supabase
-      .from('users')
-      .delete()
-      .eq('regNumber', regNumber);
-
-    if (error) {
-      console.error('Error deleting user from Supabase: ', error);
-    }
-  }
-}
-
-// Function to update navigation based on login status
-function updateNavigation() {
-  if (!navLinks) {
-    console.error('Navigation links element not found!');
-    return;
-  }
-
-  if (currentUser) {
-    navLinks.innerHTML = `
-      <span>Welcome, ${currentUser.regNumber}</span>
-      <button onclick="logout()">Logout</button>
-    `;
-  } else {
-    navLinks.innerHTML = `
-      <button onclick="showLogin()">Login</button>
-      <button onclick="showRegister()">Register</button>
-    `;
-  }
-}
-
-// Function to logout
-function logout() {
-  currentUser = null;
-  localStorage.removeItem('currentUser');
-  userManagement.style.display = 'none';
-  updateNavigation();
-}
-
-// Initialize the application
-document.addEventListener('DOMContentLoaded', () => {
-  console.log('Initializing application...');
-
-  // Initialize DOM elements
-  navLinks = document.getElementById('navLinks');
-  loginModal = document.getElementById('loginModal');
-  registerModal = document.getElementById('registerModal');
-  userManagement = document.getElementById('userManagement');
-  userTableBody = document.getElementById('userTableBody');
-  pdfGrid = document.getElementById('pdfGrid');
-  searchInput = document.getElementById('searchInput');
-  categorySelect = document.getElementById('categorySelect');
-  subcategorySelect = document.getElementById('subcategorySelect');
-  menuToggle = document.querySelector('.menu-toggle');
-  loginForm = document.getElementById('loginForm');
-  registerForm = document.getElementById('registerForm');
-
-  // Attach event listeners to forms
-  if (loginForm) {
-    loginForm.addEventListener('submit', handleLogin);
-  } else {
-    console.error('Login form not found!');
-  }
-
-  if (registerForm) {
-    registerForm.addEventListener('submit', handleRegister);
-  } else {
-    console.error('Register form not found!');
-  }
-
-  // Attach event listeners to buttons
-  const loginButton = document.getElementById('loginButton');
-  const registerButton = document.getElementById('registerButton');
-
-  if (loginButton) {
-    loginButton.addEventListener('click', showLogin);
-  } else {
-    console.error('Login button not found!');
-  }
-
-  if (registerButton) {
-    registerButton.addEventListener('click', showRegister);
-  } else {
-    console.error('Register button not found!');
-  }
-
-  // Attach event listeners to close buttons inside modals
-  const closeLoginModalButton = document.getElementById('closeLoginModal');
-  const closeRegisterModalButton = document.getElementById('closeRegisterModal');
-
-  if (closeLoginModalButton) {
-    closeLoginModalButton.addEventListener('click', () => closeModal('loginModal'));
-  }
-
-  if (closeRegisterModalButton) {
-    closeRegisterModalButton.addEventListener('click', () => closeModal('registerModal'));
-  }
-
-  // Initialize PDFs
-  initializePDFs();
-
-  // Initialize user table
-  updateUserTable();
-
-  // Initialize navigation
-  updateNavigation();
-});
-
-// Initialize PDF display
-function initializePDFs() {
-  if (!pdfGrid) {
-    console.error('PDF grid element not found!');
-    return;
-  }
-
-  pdfGrid.innerHTML = ''; // Clear existing content
-
-  if (pdfs.length === 0) {
-    console.warn('No PDFs found in the array.');
-    pdfGrid.innerHTML = '<p>No PDFs available.</p>';
-    return;
-  }
-
-  pdfs.forEach(pdf => {
-    const card = createPDFCard(pdf);
-    if (card) {
-      pdfGrid.appendChild(card);
+    const result = await response.json();
+    if (response.ok) {
+      users.push({ username: regNumber, password: regPassword, status: "active" });
+      localStorage.setItem("users", JSON.stringify(users));
+      alert("Registration successful!");
+      closeModal("registerModal");
     } else {
-      console.error('Failed to create PDF card for:', pdf);
+      alert(result.message || 'Registration failed!');
     }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Registration failed!');
+  }
+}
+
+// Handle user login
+function handleLogin(event) {
+  event.preventDefault();
+  const loginReg = document.getElementById("loginReg").value;
+  const loginPassword = document.getElementById("loginPassword").value;
+
+  const users = JSON.parse(localStorage.getItem("users")) || [];
+  const user = users.find(user => user.username === loginReg && user.password === loginPassword);
+
+  if (!user) {
+      alert("Invalid registration number or password!");
+      return;
+  }
+
+  if (user.status !== "active") {
+      alert("Your account is not active!");
+      return;
+  }
+
+  alert("Login successful!");
+  closeModal("loginModal");
+  document.getElementById("userManagement").style.display = "block";
+  populateUserTable();
+}
+
+// Populate user table in admin panel
+function populateUserTable() {
+  const users = JSON.parse(localStorage.getItem("users")) || [];
+  const tableBody = document.getElementById("userTableBody");
+  tableBody.innerHTML = "";
+
+  users.forEach((user, index) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+          <td>${user.username}</td>
+          <td>${user.password}</td>
+          <td>${user.status}</td>
+          <td>
+              <button onclick="deleteUser(${index})">Delete</button>
+              <button onclick="toggleStatus(${index})">
+                  ${user.status === "active" ? "Deactivate" : "Activate"}
+              </button>
+          </td>
+      `;
+      tableBody.appendChild(row);
   });
 }
 
-// Create PDF card element
-function createPDFCard(pdf) {
-  if (!pdf || !pdf.title || !pdf.category || !pdf.subcategory) {
-    console.error('Invalid PDF data:', pdf);
-    return null;
-  }
-
-  const card = document.createElement('div');
-  card.className = 'pdf-card';
-  card.innerHTML = `
-    <div class="pdf-thumbnail">${pdf.title.charAt(0).toUpperCase()}</div>
-    <h3>${pdf.title}</h3>
-    <p>Category: ${pdf.category}</p>
-    <p>Subcategory: ${pdf.subcategory}</p>
-    <button onclick="viewPDF(${pdf.id})">View PDF</button>
-  `;
-  return card;
+// Delete a user
+function deleteUser(index) {
+  const users = JSON.parse(localStorage.getItem("users")) || [];
+  users.splice(index, 1);
+  localStorage.setItem("users", JSON.stringify(users));
+  populateUserTable();
 }
 
-// View PDF function (mock implementation)
-function viewPDF(pdfId) {
-  if (!currentUser) {
-    alert('Please login to view PDFs');
-    return;
-  }
-  alert(`Viewing PDF ${pdfId}`);
-}
-
-// Search PDFs
-function searchPDFs() {
-  const searchTerm = searchInput.value.toLowerCase();
-  const filteredPDFs = pdfs.filter(pdf =>
-    pdf.title.toLowerCase().includes(searchTerm)
-  );
-
-  if (!pdfGrid) {
-    console.error('PDF grid element not found!');
-    return;
-  }
-
-  pdfGrid.innerHTML = ''; // Clear existing content
-
-  if (filteredPDFs.length === 0) {
-    pdfGrid.innerHTML = '<p>No PDFs found matching your search.</p>';
-    return;
-  }
-
-  filteredPDFs.forEach(pdf => {
-    const card = createPDFCard(pdf);
-    if (card) {
-      pdfGrid.appendChild(card);
-    } else {
-      console.error('Failed to create PDF card for:', pdf);
-    }
-  });
+// Toggle user status
+function toggleStatus(index) {
+  const users = JSON.parse(localStorage.getItem("users")) || [];
+  users[index].status = users[index].status === "active" ? "inactive" : "active";
+  localStorage.setItem("users", JSON.stringify(users));
+  populateUserTable();
 }
 
 // Filter PDFs by category and subcategory
 function filterPDFs() {
-  const category = categorySelect.value;
-  const subcategory = subcategorySelect.value;
+  const category = document.getElementById("categorySelect").value;
+  const subcategory = document.getElementById("subcategorySelect").value;
 
-  const filteredPDFs = pdfs.filter(pdf => {
-    return (
-      (category === '' || pdf.category === category) &&
-      (subcategory === '' || pdf.subcategory === subcategory)
-    );
+  const allCards = document.querySelectorAll(".pdf-card");
+  allCards.forEach(card => {
+      const title = card.querySelector("h3").textContent;
+      const matchesCategory = !category || title.includes(category);
+      const matchesSubcategory = !subcategory || title.includes(subcategory);
+      card.style.display = matchesCategory && matchesSubcategory ? "block" : "none";
   });
+}
 
-  if (!pdfGrid) {
-    console.error('PDF grid element not found!');
-    return;
-  }
+// Search PDFs by title
+function searchPDFs() {
+  const query = document.getElementById("searchInput").value.toLowerCase();
+  const allCards = document.querySelectorAll(".pdf-card");
 
-  pdfGrid.innerHTML = ''; // Clear existing content
-
-  if (filteredPDFs.length === 0) {
-    pdfGrid.innerHTML = '<p>No PDFs found matching your filters.</p>';
-    return;
-  }
-
-  filteredPDFs.forEach(pdf => {
-    const card = createPDFCard(pdf);
-    if (card) {
-      pdfGrid.appendChild(card);
-    } else {
-      console.error('Failed to create PDF card for:', pdf);
-    }
+  allCards.forEach(card => {
+      const title = card.querySelector("h3").textContent.toLowerCase();
+      card.style.display = title.includes(query) ? "block" : "none";
   });
+}
+
+// View PDF placeholder
+function viewPDF(title) {
+  alert(`Opening PDF: ${title}`);
 }
