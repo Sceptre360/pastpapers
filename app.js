@@ -1,15 +1,6 @@
 // Current user session (stored in localStorage)
 let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
 
-// Mock data for PDFs
-const pdfs = [
-  { id: 1, title: 'Mechanics PDF 1', category: 'Mechanics', subcategory: '1' },
-  { id: 2, title: 'Mechanics PDF 2', category: 'Mechanics', subcategory: '2' },
-  { id: 3, title: 'Geospatial PDF 1', category: 'Geospatial', subcategory: '1' },
-  { id: 4, title: 'Geospatial PDF 2', category: 'Geospatial', subcategory: '2' },
-  { id: 5, title: 'Civil PDF 1', category: 'Civil', subcategory: '1' },
-  { id: 6, title: 'Civil PDF 2', category: 'Civil', subcategory: '2' },
-];
 
 // DOM Elements
 let navLinks, loginModal, registerModal, userManagement, userTableBody, pdfGrid, searchInput, categorySelect, subcategorySelect, menuToggle, loginForm, registerForm;
