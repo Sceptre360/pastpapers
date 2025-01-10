@@ -1,10 +1,15 @@
-// Supabase Client Initialization
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_KEY;
-const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
 // Current user session (stored in localStorage)
 let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+
+// Mock data for PDFs
+const pdfs = [
+  { id: 1, title: 'Mechanics PDF 1', category: 'Mechanics', subcategory: '1' },
+  { id: 2, title: 'Mechanics PDF 2', category: 'Mechanics', subcategory: '2' },
+  { id: 3, title: 'Geospatial PDF 1', category: 'Geospatial', subcategory: '1' },
+  { id: 4, title: 'Geospatial PDF 2', category: 'Geospatial', subcategory: '2' },
+  { id: 5, title: 'Civil PDF 1', category: 'Civil', subcategory: '1' },
+  { id: 6, title: 'Civil PDF 2', category: 'Civil', subcategory: '2' },
+];
 
 // DOM Elements
 let navLinks, loginModal, registerModal, userManagement, userTableBody, pdfGrid, searchInput, categorySelect, subcategorySelect, menuToggle, loginForm, registerForm;
@@ -37,6 +42,15 @@ function closeModal(modalId) {
   }
 }
 
+// Function to toggle menu for mobile devices
+function toggleMenu() {
+  if (navLinks) {
+    navLinks.classList.toggle('active');
+  } else {
+    console.error('Navigation links element not found!');
+  }
+}
+
 // Function to handle login form submission
 async function handleLogin(event) {
   event.preventDefault();
@@ -54,19 +68,13 @@ async function handleLogin(event) {
     return;
   }
 
-  // Validate user with Supabase
+  // Validate user locally (you can replace this with Supabase if needed)
   const { data: user, error } = await supabase
     .from('users')
     .select('*')
     .eq('regNumber', regNumber)
     .eq('password', password)
     .single();
-
-  if (error) {
-    console.error('Login error:', error);
-    alert('An error occurred. Please try again.');
-    return;
-  }
 
   if (user) {
     currentUser = user;
@@ -86,29 +94,22 @@ async function handleRegister(event) {
   const password = document.getElementById('regPassword').value;
   const confirmPassword = document.getElementById('confirmPassword').value;
 
-  // Validate inputs
-  if (!regNumber || !password || !confirmPassword) {
-    alert('Please fill in all fields.');
-    return;
-  }
-
   if (password !== confirmPassword) {
-    alert('Passwords do not match.');
+    alert('Passwords do not match');
     return;
   }
 
-  // Check if user already exists
+  // Initialize Supabase only when needed
+  const supabaseUrl = 'https://xkzjjdwalnuiwidjslvm.supabase.co';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrempqZHdhbG51aXdpZGpzbHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY0MDE1MTgsImV4cCI6MjA1MTk3NzUxOH0.LC0Y09mty1-8W2jqX0XFYvbAlvCuicG_E9x_2_g0KgY';
+  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+  // Check if user already exists in Supabase
   const { data: existingUser, error: fetchError } = await supabase
     .from('users')
     .select('*')
     .eq('regNumber', regNumber)
     .single();
-
-  if (fetchError) {
-    console.error('Error checking existing user:', fetchError);
-    alert('An error occurred. Please try again.');
-    return;
-  }
 
   if (existingUser) {
     alert('Username already exists. Please choose a different one.');
@@ -121,12 +122,12 @@ async function handleRegister(event) {
     .insert([{ regNumber, password, status: 'Active' }]);
 
   if (error) {
-    console.error('Error adding user:', error);
+    console.error('Error adding user: ', error);
     alert('Registration failed. Please try again.');
   } else {
     alert('Registration successful! You can now log in.');
     closeModal('registerModal');
-    updateUserTable(); // Refresh the user table
+    updateUserTable();
   }
 }
 
@@ -139,13 +140,17 @@ async function updateUserTable() {
 
   userTableBody.innerHTML = ''; // Clear existing content
 
-  // Fetch users from Supabase
+  // Initialize Supabase only when needed
+  const supabaseUrl = 'https://xkzjjdwalnuiwidjslvm.supabase.co';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrempqZHdhbG51aXdpZGpzbHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY0MDE1MTgsImV4cCI6MjA1MTk3NzUxOH0.LC0Y09mty1-8W2jqX0XFYvbAlvCuicG_E9x_2_g0KgY';
+  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
   const { data: users, error } = await supabase
     .from('users')
     .select('*');
 
   if (error) {
-    console.error('Error fetching users:', error);
+    console.error('Error fetching users: ', error);
   } else {
     users.forEach((user) => {
       const row = document.createElement('tr');
@@ -163,17 +168,22 @@ async function updateUserTable() {
 // Function to delete user
 async function deleteUser(userId) {
   if (confirm('Are you sure you want to delete this user?')) {
+    // Initialize Supabase only when needed
+    const supabaseUrl = 'https://xkzjjdwalnuiwidjslvm.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrempqZHdhbG51aXdpZGpzbHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY0MDE1MTgsImV4cCI6MjA1MTk3NzUxOH0.LC0Y09mty1-8W2jqX0XFYvbAlvCuicG_E9x_2_g0KgY';
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
     const { error } = await supabase
       .from('users')
       .delete()
       .eq('id', userId);
 
     if (error) {
-      console.error('Error deleting user:', error);
+      console.error('Error deleting user: ', error);
       alert('An error occurred. Please try again.');
     } else {
       alert('User deleted successfully.');
-      updateUserTable(); // Refresh the user table
+      updateUserTable();
     }
   }
 }
@@ -274,3 +284,119 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize navigation
   updateNavigation();
 });
+
+// Initialize PDF display
+function initializePDFs() {
+  if (!pdfGrid) {
+    console.error('PDF grid element not found!');
+    return;
+  }
+
+  pdfGrid.innerHTML = ''; // Clear existing content
+
+  if (pdfs.length === 0) {
+    console.warn('No PDFs found in the array.');
+    pdfGrid.innerHTML = '<p>No PDFs available.</p>';
+    return;
+  }
+
+  pdfs.forEach(pdf => {
+    const card = createPDFCard(pdf);
+    if (card) {
+      pdfGrid.appendChild(card);
+    } else {
+      console.error('Failed to create PDF card for:', pdf);
+    }
+  });
+}
+
+// Create PDF card element
+function createPDFCard(pdf) {
+  if (!pdf || !pdf.title || !pdf.category || !pdf.subcategory) {
+    console.error('Invalid PDF data:', pdf);
+    return null;
+  }
+
+  const card = document.createElement('div');
+  card.className = 'pdf-card';
+  card.innerHTML = `
+    <div class="pdf-thumbnail">${pdf.title.charAt(0).toUpperCase()}</div>
+    <h3>${pdf.title}</h3>
+    <p>Category: ${pdf.category}</p>
+    <p>Subcategory: ${pdf.subcategory}</p>
+    <button onclick="viewPDF(${pdf.id})">View PDF</button>
+  `;
+  return card;
+}
+
+// View PDF function (mock implementation)
+function viewPDF(pdfId) {
+  if (!currentUser) {
+    alert('Please login to view PDFs');
+    return;
+  }
+  alert(`Viewing PDF ${pdfId}`);
+}
+
+// Search PDFs
+function searchPDFs() {
+  const searchTerm = searchInput.value.toLowerCase();
+  const filteredPDFs = pdfs.filter(pdf =>
+    pdf.title.toLowerCase().includes(searchTerm)
+  );
+
+  if (!pdfGrid) {
+    console.error('PDF grid element not found!');
+    return;
+  }
+
+  pdfGrid.innerHTML = ''; // Clear existing content
+
+  if (filteredPDFs.length === 0) {
+    pdfGrid.innerHTML = '<p>No PDFs found matching your search.</p>';
+    return;
+  }
+
+  filteredPDFs.forEach(pdf => {
+    const card = createPDFCard(pdf);
+    if (card) {
+      pdfGrid.appendChild(card);
+    } else {
+      console.error('Failed to create PDF card for:', pdf);
+    }
+  });
+}
+
+// Filter PDFs by category and subcategory
+function filterPDFs() {
+  const category = categorySelect.value;
+  const subcategory = subcategorySelect.value;
+
+  const filteredPDFs = pdfs.filter(pdf => {
+    return (
+      (category === '' || pdf.category === category) &&
+      (subcategory === '' || pdf.subcategory === subcategory)
+    );
+  });
+
+  if (!pdfGrid) {
+    console.error('PDF grid element not found!');
+    return;
+  }
+
+  pdfGrid.innerHTML = ''; // Clear existing content
+
+  if (filteredPDFs.length === 0) {
+    pdfGrid.innerHTML = '<p>No PDFs found matching your filters.</p>';
+    return;
+  }
+
+  filteredPDFs.forEach(pdf => {
+    const card = createPDFCard(pdf);
+    if (card) {
+      pdfGrid.appendChild(card);
+    } else {
+      console.error('Failed to create PDF card for:', pdf);
+    }
+  });
+}
