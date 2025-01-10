@@ -70,11 +70,10 @@ async function handleLogin(event) {
     closeModal('loginModal');
 
     // Sync with Supabase (optional)
-    const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_KEY;
-    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    const supabaseUrl = process.env.SUPABASE_SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Check if user exists in Supabase
     const { data: supabaseUser, error } = await supabase
       .from('users')
       .select('*')
@@ -129,9 +128,9 @@ async function handleRegister(event) {
   closeModal('registerModal');
 
   // Sync with Supabase
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_KEY;
-  const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+  const supabaseUrl = process.env.SUPABASE_SUPABASE_URL;
+  const supabaseKey = process.env.SUPABASE_NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabase = createClient(supabaseUrl, supabaseKey);
 
   const { data, error } = await supabase
     .from('users')
@@ -180,9 +179,9 @@ async function deleteUser(regNumber) {
     updateUserTable();
 
     // Sync with Supabase
-    const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_KEY;
-    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    const supabaseUrl = process.env.SUPABASE_SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
     const { error } = await supabase
       .from('users')
