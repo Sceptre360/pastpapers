@@ -1,5 +1,5 @@
 // api/register.js
-
+import { put } from '@vercel/blob';
 
 export default async (req, res) => {
   if (req.method === 'POST') {
@@ -8,7 +8,7 @@ export default async (req, res) => {
     try {
       // Fetch existing users from Blob Storage
       let users = [];
-      const blobResponse = await fetch('https://your-blob-storage-url/users.json');
+      const blobResponse = await fetch('https://blob.vercel-storage.com/users.json');
       if (blobResponse.ok) {
         users = await blobResponse.json();
       }
