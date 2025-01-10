@@ -1,10 +1,11 @@
+// api/register.js
 import { put } from '@vercel/blob';
 
 export default async (req, res) => {
   if (req.method === 'POST') {
     const { username, password } = req.body;
-    const trimmedUsername = username.trim();
-    const trimmedPassword = password.trim();
+    const trimmedUsername = username.trim(); // Trim the username
+    const trimmedPassword = password.trim(); // Trim the password
 
     try {
       // Fetch existing users from Blob Storage
@@ -14,12 +15,12 @@ export default async (req, res) => {
         users = await blobResponse.json();
       }
 
-      // Check if the user already exists
+      // Check if the user already exists (compare trimmed values)
       if (users.some(user => user.username === trimmedUsername)) {
         return res.status(400).json({ message: 'User already exists!' });
       }
 
-      // Add the new user
+      // Add the new user (store trimmed values)
       users.push({ username: trimmedUsername, password: trimmedPassword, status: 'active' });
 
       // Save the updated users array to Blob Storage
