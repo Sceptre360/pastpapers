@@ -4,7 +4,11 @@ export default async (req, res) => {
         return res.status(405).json({ message: 'Method not allowed' });
     }
 
+    // Log the incoming request body (be careful with passwords in production)
+    console.log('Login attempt with username:', req.body.username);
+    
     if (!req.body || !req.body.username || !req.body.password) {
+        console.log('Missing credentials in request');
         return res.status(400).json({ message: 'Username and password are required' });
     }
 
@@ -15,43 +19,35 @@ export default async (req, res) => {
     try {
         // Add error handling for empty credentials
         if (!trimmedUsername || !trimmedPassword) {
+            console.log('Empty credentials after trimming');
             return res.status(400).json({ message: 'Username and password cannot be empty' });
         }
 
-        // Fetch existing users from Blob Storage with detailed error handling
-        let users = [];
+        // Initialize default users
+        let users = [{
+            username: 'admin',
+            password: 'admin123',
+            status: 'active'
+        }];
+
+        // Try to fetch from blob storage
         try {
             console.log('Attempting to fetch users from Blob Storage...');
             const blobUrl = 'https://xgfyqlneoat12ohc.public.blob.vercel-storage.com/users.json';
-            console.log('Blob URL:', blobUrl);
-
             const blobResponse = await fetch(blobUrl);
-            console.log('Blob Response Status:', blobResponse.status);
-            console.log('Blob Response Status Text:', blobResponse.statusText);
-
-            if (!blobResponse.ok) {
-                // If file doesn't exist, initialize with default admin user
-                if (blobResponse.status === 404) {
-                    console.log('Users file not found. Using default users array.');
-                    users = [{
-                        username: 'admin',
-                        password: 'admin123',
-                        status: 'active'
-                    }];
-                } else {
-                    throw new Error(`Failed to fetch users: ${blobResponse.statusText}`);
-                }
-            } else {
+            
+            if (blobResponse.ok) {
                 users = await blobResponse.json();
-                console.log('Successfully fetched users. Count:', users.length);
+                console.log('Successfully loaded users from storage. User count:', users.length);
+            } else {
+                console.log('Using default users array with admin account');
             }
         } catch (fetchError) {
-            console.error('Detailed fetch error:', fetchError);
-            return res.status(500).json({ 
-                message: 'Error accessing user database',
-                debug: process.env.NODE_ENV === 'development' ? fetchError.message : undefined
-            });
+            console.log('Blob storage error, using default users array');
         }
+
+        // Log the available usernames (but not passwords)
+        console.log('Available usernames:', users.map(u => u.username));
 
         // Find the user (case-insensitive username comparison, case-sensitive password)
         const user = users.find(
@@ -60,14 +56,19 @@ export default async (req, res) => {
         );
 
         if (!user) {
-            return res.status(401).json({ message: 'Invalid username or password' });
+            console.log('Login failed: Invalid credentials for username:', trimmedUsername);
+            return res.status(401).json({ 
+                message: 'Invalid username or password',
+                debug: 'Try using username: admin, password: admin123'
+            });
         }
 
         if (user.status !== 'active') {
+            console.log('Login failed: Inactive account for username:', trimmedUsername);
             return res.status(403).json({ message: 'Your account is not active' });
         }
 
-        // Success case
+        console.log('Login successful for username:', trimmedUsername);
         return res.status(200).json({
             message: 'Login successful',
             user: {
@@ -78,9 +79,56 @@ export default async (req, res) => {
 
     } catch (error) {
         console.error('Login error:', error);
-        return res.status(500).json({ 
-            message: 'Internal server error',
-            debug: process.env.NODE_ENV === 'development' ? error.message : undefined
-        });
+        return res.status(500).json({ message: 'Internal server error' });
     }
 };
+
+// Frontend login handler (app.js)
+async function handleLogin(event) {
+    event.preventDefault();
+    
+    const loginReg = document.getElementById("loginReg");
+    const loginPassword = document.getElementById("loginPassword");
+
+    // Debug log (remove in production)
+    console.log('Attempting login with username:', loginReg.value);
+
+    // Validate inputs
+    if (!loginReg.value.trim() || !loginPassword.value.trim()) {
+        alert("Please enter both username and password");
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: loginReg.value.trim(),
+                password: loginPassword.value.trim()
+            }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            alert("Login successful!");
+            closeModal("loginModal");
+            document.getElementById("userGreeting").innerText = `Welcome, ${result.user.username}!`;
+            document.getElementById("userGreeting").style.display = "block";
+            
+            // Clear form
+            loginReg.value = "";
+            loginPassword.value = "";
+        } else {
+            // More detailed error message
+            const errorMessage = result.debug || result.message;
+            alert(errorMessage);
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        alert('Network error. Please try again.');
+    }
+}
