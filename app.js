@@ -61,15 +61,30 @@ async function handleRegister(event) {
 }
 
 // Modified frontend login handler (app.js)
+
+// Frontend login handler (app.js)
 async function handleLogin(event) {
   event.preventDefault();
   
   const loginReg = document.getElementById("loginReg");
   const loginPassword = document.getElementById("loginPassword");
 
-  // Validate inputs
-  if (!loginReg.value.trim() || !loginPassword.value.trim()) {
+  // Enhanced frontend validation
+  if (!loginReg.value || !loginPassword.value) {
       alert("Please enter both username and password");
+      return;
+  }
+
+  const username = loginReg.value.trim();
+  const password = loginPassword.value.trim();
+
+  if (username.length < 3) {
+      alert("Username must be at least 3 characters long");
+      return;
+  }
+
+  if (password.length < 6) {
+      alert("Password must be at least 6 characters long");
       return;
   }
 
@@ -80,15 +95,14 @@ async function handleLogin(event) {
               'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-              username: loginReg.value.trim(),
-              password: loginPassword.value.trim()
+              username: username,
+              password: password
           }),
       });
 
       const result = await response.json();
 
       if (response.ok) {
-          // Success case
           alert("Login successful!");
           closeModal("loginModal");
           document.getElementById("userGreeting").innerText = `Welcome, ${result.user.username}!`;
@@ -98,8 +112,7 @@ async function handleLogin(event) {
           loginReg.value = "";
           loginPassword.value = "";
       } else {
-          // Error case
-          alert(result.message || 'Login failed');
+          alert(result.message || 'Login failed. Please try again.');
       }
   } catch (error) {
       console.error('Login error:', error);
