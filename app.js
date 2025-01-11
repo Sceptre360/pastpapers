@@ -60,44 +60,50 @@ async function handleRegister(event) {
   }
 }
 
+// Modified frontend login handler (app.js)
 async function handleLogin(event) {
   event.preventDefault();
-  const loginReg = document.getElementById("loginReg").value;
-  const loginPassword = document.getElementById("loginPassword").value;
+  
+  const loginReg = document.getElementById("loginReg");
+  const loginPassword = document.getElementById("loginPassword");
 
-  // Log the payload being sent
-  console.log('Sending login request:', { username: loginReg, password: loginPassword });
+  // Validate inputs
+  if (!loginReg.value.trim() || !loginPassword.value.trim()) {
+      alert("Please enter both username and password");
+      return;
+  }
 
-  // Send data to the serverless function
   try {
-    const response = await fetch('/api/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username: loginReg, password: loginPassword }),
-    });
+      const response = await fetch('/api/login', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+              username: loginReg.value.trim(),
+              password: loginPassword.value.trim()
+          }),
+      });
 
-    // Log the raw response for debugging
-    console.log('Raw response:', response);
+      const result = await response.json();
 
-    // Parse the response as JSON
-    const result = await response.json();
-    console.log('Parsed response:', result);
-
-    if (response.ok) {
-      alert("Login successful!");
-      closeModal("loginModal");
-      // Show welcome message
-      document.getElementById("userGreeting").innerText = `Welcome, ${loginReg}!`;
-      document.getElementById("userGreeting").style.display = "block";
-    } else {
-      // Display the error message from the serverless function
-      alert(result.message || 'Login failed!');
-    }
+      if (response.ok) {
+          // Success case
+          alert("Login successful!");
+          closeModal("loginModal");
+          document.getElementById("userGreeting").innerText = `Welcome, ${result.user.username}!`;
+          document.getElementById("userGreeting").style.display = "block";
+          
+          // Clear form
+          loginReg.value = "";
+          loginPassword.value = "";
+      } else {
+          // Error case
+          alert(result.message || 'Login failed');
+      }
   } catch (error) {
-    console.error('Error:', error);
-    alert('Login failed!');
+      console.error('Login error:', error);
+      alert('Network error. Please try again.');
   }
 }
      
