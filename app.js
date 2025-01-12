@@ -90,8 +90,15 @@ async function handleLogin(event) {
     if (userData.username === loginReg && userData.password === loginPassword) {
       alert("Login successful!");
       closeModal("loginModal");
+
+      // Display the logged-in username
       document.getElementById("userGreeting").innerText = `Welcome, ${userData.username}!`;
       document.getElementById("userGreeting").style.display = "block";
+
+      // Update the login/logout buttons
+      document.getElementById("navLinks").innerHTML = `
+        <button onclick="handleLogout()">Logout</button>
+      `;
       return; // Exit early if localStorage validation succeeds
     }
   }
@@ -114,8 +121,15 @@ async function handleLogin(event) {
     if (response.ok) {
       alert("Login successful!");
       closeModal("loginModal");
+
+      // Display the logged-in username
       document.getElementById("userGreeting").innerText = `Welcome, ${result.user.username}!`;
       document.getElementById("userGreeting").style.display = "block";
+
+      // Update the login/logout buttons
+      document.getElementById("navLinks").innerHTML = `
+        <button onclick="handleLogout()">Logout</button>
+      `;
 
       // Clear form
       document.getElementById("loginReg").value = "";
@@ -127,6 +141,23 @@ async function handleLogin(event) {
     console.error('Login error:', error);
     alert('Network error. Please try again.');
   }
+}
+
+// Logout handler
+function handleLogout() {
+  // Clear user data from localStorage
+  localStorage.removeItem('userData');
+
+  // Hide the user greeting
+  document.getElementById("userGreeting").style.display = "none";
+
+  // Reset the login/logout buttons
+  document.getElementById("navLinks").innerHTML = `
+    <button onclick="showLogin()">Login</button>
+    <button onclick="showRegister()">Register</button>
+  `;
+
+  alert("You have been logged out.");
 }
 
 // Existing functions (unchanged)
@@ -163,3 +194,20 @@ document.getElementById("loginForm").addEventListener("submit", handleLogin);
 document.getElementById("categorySelect").addEventListener("change", filterPDFs);
 document.getElementById("subcategorySelect").addEventListener("change", filterPDFs);
 document.getElementById("searchInput").addEventListener("input", searchPDFs);
+
+// Check if the user is already logged in on page load
+window.onload = function () {
+  const storedUserData = localStorage.getItem('userData');
+  if (storedUserData) {
+    const userData = JSON.parse(storedUserData);
+
+    // Display the logged-in username
+    document.getElementById("userGreeting").innerText = `Welcome, ${userData.username}!`;
+    document.getElementById("userGreeting").style.display = "block";
+
+    // Update the login/logout buttons
+    document.getElementById("navLinks").innerHTML = `
+      <button onclick="handleLogout()">Logout</button>
+    `;
+  }
+};
