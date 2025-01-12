@@ -81,8 +81,22 @@ async function handleRegister(event) {
   const regPassword = document.getElementById("regPassword").value;
   const confirmPassword = document.getElementById("confirmPassword").value;
 
+  // Password validation logic
+  const hasUppercase = /[A-Z]/.test(regPassword); // At least one uppercase letter
+  const hasNonLetter = /[^a-zA-Z]/.test(regPassword); // At least one non-letter character
+
   if (regPassword !== confirmPassword) {
       alert("Passwords do not match!");
+      return;
+  }
+
+  if (!hasUppercase) {
+      alert("Password must contain at least one uppercase letter.");
+      return;
+  }
+
+  if (!hasNonLetter) {
+      alert("Password must contain at least one non-letter character (e.g., a number or symbol).");
       return;
   }
 
@@ -134,6 +148,20 @@ async function handleLogin(event) {
 
   if (loginPassword.length < 6) {
       alert("Password must be at least 6 characters long");
+      return;
+  }
+
+  // Password validation logic
+  const hasUppercase = /[A-Z]/.test(loginPassword); // At least one uppercase letter
+  const hasNonLetter = /[^a-zA-Z]/.test(loginPassword); // At least one non-letter character
+
+  if (!hasUppercase) {
+      alert("Password must contain at least one uppercase letter.");
+      return;
+  }
+
+  if (!hasNonLetter) {
+      alert("Password must contain at least one non-letter character (e.g., a number or symbol).");
       return;
   }
 
