@@ -205,8 +205,7 @@ async function handleLogin(event) {
 
 // Logout handler
 function handleLogout() {
-  // Clear user data from localStorage
-  localStorage.removeItem('userData');
+  // Clear only the login state
   localStorage.removeItem('isLoggedIn');
 
   // Hide the user greeting
