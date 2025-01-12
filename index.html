@@ -6,9 +6,8 @@
     <title>Mtihani Past Papers</title>
     <link rel="icon" href="jacklogo.png" type="image/png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <!-- Add Supabase SDK -->
-   
     <style>
+        /* Your existing CSS styles */
         :root {
             --primary: #4f46e5; /* Blue */
             --primary-dark: #4338ca; /* Darker Blue */
@@ -343,7 +342,6 @@
             <p id="motivationMessage">You are smart enough!</p>
         </div>
     </div>
-<!-- Add this somewhere in your HTML -->
 
     <main class="container">
         <!-- Login Form Modal -->
@@ -379,7 +377,7 @@
                             <input type="text" id="regNumber" required>
                         </div>
                         <div class="form-group">
-                            <label for="regPassword">Password</label>
+                            <label for="regPassword">Password (your somas/ad password)</label>
                             <input type="password" id="regPassword" required>
                         </div>
                         <div class="form-group">
@@ -411,101 +409,31 @@
         </div>
 
         <!-- Search Bar -->
-<div class="search-container">
-    <label for="searchInput">Search PDFs by title</label>
-    <input type="text" id="searchInput" placeholder="Search PDFs by title" oninput="searchPDFs()">
+        <div class="search-container">
+            <label for="searchInput">Search PDFs by title</label>
+            <input type="text" id="searchInput" placeholder="Search PDFs by title" oninput="searchPDFs()">
 
-    <label for="categorySelect">Select Category</label>
-    <select id="categorySelect" onchange="filterPDFs()">
-        <option value="">Select Category</option>
-        <option value="Mechanical">Mechanical</option>
-        <option value="Geospatial">Geospatial</option>
-        <option value="Civil">Civil</option>
-        <option value="Electrical">Electrical</option>
-        <option value="Biosystems">Biosystems</option>
-    </select>
+            <label for="categorySelect">Select Category</label>
+            <select id="categorySelect" onchange="filterPDFs()">
+                <option value="">Select Category</option>
+                <option value="Mechanical">Mechanical</option>
+                <option value="Geospatial">Geospatial</option>
+                <option value="Civil">Civil</option>
+                <option value="Electrical">Electrical</option>
+                <option value="Biosystems">Biosystems</option>
+            </select>
 
-    <label for="subcategorySelect">Select Subcategory</label>
-    <select id="subcategorySelect" onchange="filterPDFs()">
-        <option value="">Select Subcategory</option>
-        <option value="Year 1">Year 1</option>
-        <option value="Year 2">Year 2</option>
-    </select>
-</div>
+            <label for="subcategorySelect">Select Subcategory</label>
+            <select id="subcategorySelect" onchange="filterPDFs()">
+                <option value="">Select Subcategory</option>
+                <option value="Year 1">Year 1</option>
+                <option value="Year 2">Year 2</option>
+            </select>
+        </div>
 
-<!-- PDF Grid -->
-<div class="pdf-grid" id="pdfGrid">
-    <!-- PDF cards will be dynamically added here -->
-</div>
-            <!-- Mechanical Year 1 -->
-            <div class="pdf-card">
-                <div class="pdf-thumbnail">PDF</div>
-                <h3>Mechanical Year 1</h3>
-                <button onclick="viewPDF('Mechanical Year 1')">View PDF</button>
-            </div>
-
-            <!-- Mechanical Year 2 -->
-            <div class="pdf-card">
-                <div class="pdf-thumbnail">PDF</div>
-                <h3>Mechanical Year 2</h3>
-                <button onclick="viewPDF('Mechanical Year 2')">View PDF</button>
-            </div>
-
-            <!-- Geospatial Year 1 -->
-            <div class="pdf-card">
-                <div class="pdf-thumbnail">PDF</div>
-                <h3>Geospatial Year 1</h3>
-                <button onclick="viewPDF('Geospatial Year 1')">View PDF</button>
-            </div>
-
-            <!-- Geospatial Year 2 -->
-            <div class="pdf-card">
-                <div class="pdf-thumbnail">PDF</div>
-                <h3>Geospatial Year 2</h3>
-                <button onclick="viewPDF('Geospatial Year 2')">View PDF</button>
-            </div>
-
-            <!-- Civil Year 1 -->
-            <div class="pdf-card">
-                <div class="pdf-thumbnail">PDF</div>
-                <h3>Civil Year 1</h3>
-                <button onclick="viewPDF('Civil Year 1')">View PDF</button>
-            </div>
-
-            <!-- Civil Year 2 -->
-            <div class="pdf-card">
-                <div class="pdf-thumbnail">PDF</div>
-                <h3>Civil Year 2</h3>
-                <button onclick="viewPDF('Civil Year 2')">View PDF</button>
-            </div>
-
-            <!-- Electrical Year 1 -->
-            <div class="pdf-card">
-                <div class="pdf-thumbnail">PDF</div>
-                <h3>Electrical Year 1</h3>
-                <button onclick="viewPDF('Electrical Year 1')">View PDF</button>
-            </div>
-
-            <!-- Electrical Year 2 -->
-            <div class="pdf-card">
-                <div class="pdf-thumbnail">PDF</div>
-                <h3>Electrical Year 2</h3>
-                <button onclick="viewPDF('Electrical Year 2')">View PDF</button>
-            </div>
-
-            <!-- Biosystems Year 1 -->
-            <div class="pdf-card">
-                <div class="pdf-thumbnail">PDF</div>
-                <h3>Biosystems Year 1</h3>
-                <button onclick="viewPDF('Biosystems Year 1')">View PDF</button>
-            </div>
-
-            <!-- Biosystems Year 2 -->
-            <div class="pdf-card">
-                <div class="pdf-thumbnail">PDF</div>
-                <h3>Biosystems Year 2</h3>
-                <button onclick="viewPDF('Biosystems Year 2')">View PDF</button>
-            </div>
+        <!-- PDF Grid -->
+        <div class="pdf-grid" id="pdfGrid">
+            <!-- PDF cards will be dynamically added here -->
         </div>
     </main>
 
@@ -517,8 +445,60 @@
         <p>Reset Student AD / Reset UoN Staff AD</p>
         <p>Contacts: 0204918196, 0204918197, 0204918198</p>
     </footer>
-  <!-- Connect to app.js -->
-  <script src="app.js"></script>
 
+    <!-- Connect to app.js -->
+    <script src="app.js"></script>
+
+    <!-- Add this script to dynamically load PDFs -->
+    <script>
+        // Array of PDF files in the media folder
+        const pdfFiles = [
+            { title: "Mechanical Year 1", file: "media/mechanical_year_1.pdf" },
+            { title: "Mechanical Year 2", file: "media/mechanical_year_2.pdf" },
+            { title: "Geospatial Year 1", file: "media/geospatial_year_1.pdf" },
+            { title: "Geospatial Year 2", file: "media/geospatial_year_2.pdf" },
+            { title: "Civil Year 1", file: "media/civil_year_1.pdf" },
+            { title: "Civil Year 2", file: "media/civil_year_2.pdf" },
+            { title: "Electrical Year 1", file: "media/electrical_year_1.pdf" },
+            { title: "Electrical Year 2", file: "media/electrical_year_2.pdf" },
+            { title: "Biosystems Year 1", file: "media/biosystems_year_1.pdf" },
+            { title: "Biosystems Year 2", file: "media/biosystems_year_2.pdf" }
+        ];
+
+        // Function to dynamically create PDF cards
+        function loadPDFs() {
+            const pdfGrid = document.getElementById("pdfGrid");
+
+            pdfFiles.forEach(pdf => {
+                const pdfCard = document.createElement("div");
+                pdfCard.className = "pdf-card";
+
+                const pdfThumbnail = document.createElement("div");
+                pdfThumbnail.className = "pdf-thumbnail";
+                pdfThumbnail.textContent = "PDF";
+
+                const pdfTitle = document.createElement("h3");
+                pdfTitle.textContent = pdf.title;
+
+                const viewButton = document.createElement("button");
+                viewButton.textContent = "View PDF";
+                viewButton.onclick = () => viewPDF(pdf.file);
+
+                pdfCard.appendChild(pdfThumbnail);
+                pdfCard.appendChild(pdfTitle);
+                pdfCard.appendChild(viewButton);
+
+                pdfGrid.appendChild(pdfCard);
+            });
+        }
+
+        // Function to open PDF in a new tab
+        function viewPDF(pdfFile) {
+            window.open(pdfFile, "_blank");
+        }
+
+        // Load PDFs when the page loads
+        window.onload = loadPDFs;
+    </script>
 </body>
 </html>

@@ -73,8 +73,8 @@ async function handleLogin(event) {
     return;
   }
 
-  if (loginReg.length < 3) {
-    alert("Username must be at least 3 characters long");
+  if (loginReg.length < 6) {
+    alert("Username must be at least 6 characters long");
     return;
   }
 
@@ -88,7 +88,7 @@ async function handleLogin(event) {
   if (storedUserData) {
     const userData = JSON.parse(storedUserData);
     if (userData.username === loginReg && userData.password === loginPassword) {
-      alert("Login successful using localStorage!");
+      alert("Login successful!");
       closeModal("loginModal");
       document.getElementById("userGreeting").innerText = `Welcome, ${userData.username}!`;
       document.getElementById("userGreeting").style.display = "block";
