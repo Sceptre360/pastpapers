@@ -1,3 +1,57 @@
+// Array of PDF files in the media folder
+const pdfFiles = [
+  { title: "Mechanical Year 1", file: "media/Mech2.pdf" },
+  { title: "Mechanical Year 2", file: "media/MECH1.pdf" },
+  { title: "Geospatial Year 1", file: "media/civil.pdf" },
+  { title: "Geospatial Year 2", file: "media/PASTPAPERS GEO.pdf" },
+  { title: "Civil Year 1", file: "media/Civil.pdf" },
+  { title: "Civil Year 2", file: "media/civil_year_2.pdf" },
+  { title: "Electrical Year 1", file: "media/civil.pdf" },
+  { title: "Electrical Year 2", file: "media/elec.pdf" },
+  { title: "Biosystems Year 1", file: "media/civil.pdf" },
+  { title: "Biosystems Year 2", file: "media/biosystems_year_2.pdf" }
+];
+
+// Function to dynamically create PDF cards
+function loadPDFs() {
+  const pdfGrid = document.getElementById("pdfGrid");
+
+  pdfFiles.forEach(pdf => {
+      const pdfCard = document.createElement("div");
+      pdfCard.className = "pdf-card";
+
+      const pdfThumbnail = document.createElement("div");
+      pdfThumbnail.className = "pdf-thumbnail";
+      pdfThumbnail.textContent = "PDF";
+
+      const pdfTitle = document.createElement("h3");
+      pdfTitle.textContent = pdf.title;
+
+      const viewButton = document.createElement("button");
+      viewButton.textContent = "View PDF";
+      viewButton.onclick = () => viewPDF(pdf.file);
+
+      pdfCard.appendChild(pdfThumbnail);
+      pdfCard.appendChild(pdfTitle);
+      pdfCard.appendChild(viewButton);
+
+      pdfGrid.appendChild(pdfCard);
+  });
+}
+
+// Function to open PDF in a new tab (with login check)
+function viewPDF(pdfFile) {
+  // Check if the user is logged in using localStorage
+  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+
+  if (!isLoggedIn) {
+      alert("You must be logged in to view this PDF.");
+      showLogin(); // Show the login modal
+      return; // Stop further execution
+  }
+  window.open(pdfFile, "_blank");
+}
+
 // Existing functions (unchanged)
 function showModal(modalId) {
   document.getElementById(modalId).style.display = 'block';
@@ -91,6 +145,9 @@ async function handleLogin(event) {
           alert("Login successful!");
           closeModal("loginModal");
 
+          // Set login state
+          localStorage.setItem("isLoggedIn", "true");
+
           // Display the logged-in username
           document.getElementById("userGreeting").innerText = `Welcome, ${userData.username}!`;
           document.getElementById("userGreeting").style.display = "block";
@@ -122,6 +179,9 @@ async function handleLogin(event) {
           alert("Login successful!");
           closeModal("loginModal");
 
+          // Set login state
+          localStorage.setItem("isLoggedIn", "true");
+
           // Display the logged-in username
           document.getElementById("userGreeting").innerText = `Welcome, ${result.user.username}!`;
           document.getElementById("userGreeting").style.display = "block";
@@ -147,6 +207,7 @@ async function handleLogin(event) {
 function handleLogout() {
   // Clear user data from localStorage
   localStorage.removeItem('userData');
+  localStorage.removeItem('isLoggedIn');
 
   // Hide the user greeting
   document.getElementById("userGreeting").style.display = "none";
@@ -184,10 +245,6 @@ function searchPDFs() {
   });
 }
 
-function viewPDF(title) {
-  alert(`Opening PDF: ${title}`);
-}
-
 // Attach event listeners
 document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("registerForm").addEventListener("submit", handleRegister);
@@ -203,8 +260,10 @@ window.onload = function () {
   loadPDFs();
 
   // Check if the user is already logged in
+  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
   const storedUserData = localStorage.getItem('userData');
-  if (storedUserData) {
+
+  if (isLoggedIn && storedUserData) {
       const userData = JSON.parse(storedUserData);
 
       // Display the logged-in username
