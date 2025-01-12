@@ -28,35 +28,35 @@ async function handleRegister(event) {
   const confirmPassword = document.getElementById("confirmPassword").value;
 
   if (regPassword !== confirmPassword) {
-    alert("Passwords do not match!");
-    return;
+      alert("Passwords do not match!");
+      return;
   }
 
   // Send data to the serverless function
   try {
-    const response = await fetch('/api/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username: regNumber, password: regPassword }),
-    });
+      const response = await fetch('/api/register', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username: regNumber, password: regPassword }),
+      });
 
-    const result = await response.json();
-    if (response.ok) {
-      alert("Registration successful!");
+      const result = await response.json();
+      if (response.ok) {
+          alert("Registration successful!");
 
-      // Store user data in localStorage
-      const userData = { username: regNumber, password: regPassword };
-      localStorage.setItem('userData', JSON.stringify(userData));
+          // Store user data in localStorage
+          const userData = { username: regNumber, password: regPassword };
+          localStorage.setItem('userData', JSON.stringify(userData));
 
-      closeModal("registerModal");
-    } else {
-      alert(result.message || 'Registration failed!');
-    }
+          closeModal("registerModal");
+      } else {
+          alert(result.message || 'Registration failed!');
+      }
   } catch (error) {
-    console.error('Error:', error);
-    alert('Registration failed!');
+      console.error('Error:', error);
+      alert('Registration failed!');
   }
 }
 
@@ -69,77 +69,77 @@ async function handleLogin(event) {
 
   // Enhanced frontend validation
   if (!loginReg || !loginPassword) {
-    alert("Please enter both username and password");
-    return;
+      alert("Please enter both username and password");
+      return;
   }
 
   if (loginReg.length < 6) {
-    alert("Username must be at least 6 characters long");
-    return;
+      alert("Username must be at least 6 characters long");
+      return;
   }
 
   if (loginPassword.length < 6) {
-    alert("Password must be at least 6 characters long");
-    return;
+      alert("Password must be at least 6 characters long");
+      return;
   }
 
   // Check localStorage for user data
   const storedUserData = localStorage.getItem('userData');
   if (storedUserData) {
-    const userData = JSON.parse(storedUserData);
-    if (userData.username === loginReg && userData.password === loginPassword) {
-      alert("Login successful!");
-      closeModal("loginModal");
+      const userData = JSON.parse(storedUserData);
+      if (userData.username === loginReg && userData.password === loginPassword) {
+          alert("Login successful!");
+          closeModal("loginModal");
 
-      // Display the logged-in username
-      document.getElementById("userGreeting").innerText = `Welcome, ${userData.username}!`;
-      document.getElementById("userGreeting").style.display = "block";
+          // Display the logged-in username
+          document.getElementById("userGreeting").innerText = `Welcome, ${userData.username}!`;
+          document.getElementById("userGreeting").style.display = "block";
 
-      // Update the login/logout buttons
-      document.getElementById("navLinks").innerHTML = `
-        <button onclick="handleLogout()">Logout</button>
-      `;
-      return; // Exit early if localStorage validation succeeds
-    }
+          // Update the login/logout buttons
+          document.getElementById("navLinks").innerHTML = `
+              <button onclick="handleLogout()">Logout</button>
+          `;
+          return; // Exit early if localStorage validation succeeds
+      }
   }
 
   // If localStorage validation fails, proceed with server login
   try {
-    const response = await fetch('/api/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username: loginReg,
-        password: loginPassword
-      }),
-    });
+      const response = await fetch('/api/login', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+              username: loginReg,
+              password: loginPassword
+          }),
+      });
 
-    const result = await response.json();
+      const result = await response.json();
 
-    if (response.ok) {
-      alert("Login successful!");
-      closeModal("loginModal");
+      if (response.ok) {
+          alert("Login successful!");
+          closeModal("loginModal");
 
-      // Display the logged-in username
-      document.getElementById("userGreeting").innerText = `Welcome, ${result.user.username}!`;
-      document.getElementById("userGreeting").style.display = "block";
+          // Display the logged-in username
+          document.getElementById("userGreeting").innerText = `Welcome, ${result.user.username}!`;
+          document.getElementById("userGreeting").style.display = "block";
 
-      // Update the login/logout buttons
-      document.getElementById("navLinks").innerHTML = `
-        <button onclick="handleLogout()">Logout</button>
-      `;
+          // Update the login/logout buttons
+          document.getElementById("navLinks").innerHTML = `
+              <button onclick="handleLogout()">Logout</button>
+          `;
 
-      // Clear form
-      document.getElementById("loginReg").value = "";
-      document.getElementById("loginPassword").value = "";
-    } else {
-      alert(result.message || 'Login failed. Please try again.');
-    }
+          // Clear form
+          document.getElementById("loginReg").value = "";
+          document.getElementById("loginPassword").value = "";
+      } else {
+          alert(result.message || 'Login failed. Please try again.');
+      }
   } catch (error) {
-    console.error('Login error:', error);
-    alert('Network error. Please try again.');
+      console.error('Login error:', error);
+      alert('Network error. Please try again.');
   }
 }
 
@@ -153,8 +153,8 @@ function handleLogout() {
 
   // Reset the login/logout buttons
   document.getElementById("navLinks").innerHTML = `
-    <button onclick="showLogin()">Login</button>
-    <button onclick="showRegister()">Register</button>
+      <button onclick="showLogin()">Login</button>
+      <button onclick="showRegister()">Register</button>
   `;
 
   alert("You have been logged out.");
@@ -167,10 +167,10 @@ function filterPDFs() {
 
   const allCards = document.querySelectorAll(".pdf-card");
   allCards.forEach(card => {
-    const title = card.querySelector("h3").textContent;
-    const matchesCategory = !category || title.includes(category);
-    const matchesSubcategory = !subcategory || title.includes(subcategory);
-    card.style.display = matchesCategory && matchesSubcategory ? "block" : "none";
+      const title = card.querySelector("h3").textContent;
+      const matchesCategory = !category || title.includes(category);
+      const matchesSubcategory = !subcategory || title.includes(subcategory);
+      card.style.display = matchesCategory && matchesSubcategory ? "block" : "none";
   });
 }
 
@@ -179,8 +179,8 @@ function searchPDFs() {
   const allCards = document.querySelectorAll(".pdf-card");
 
   allCards.forEach(card => {
-    const title = card.querySelector("h3").textContent.toLowerCase();
-    card.style.display = title.includes(query) ? "block" : "none";
+      const title = card.querySelector("h3").textContent.toLowerCase();
+      card.style.display = title.includes(query) ? "block" : "none";
   });
 }
 
@@ -189,25 +189,31 @@ function viewPDF(title) {
 }
 
 // Attach event listeners
-document.getElementById("registerForm").addEventListener("submit", handleRegister);
-document.getElementById("loginForm").addEventListener("submit", handleLogin);
-document.getElementById("categorySelect").addEventListener("change", filterPDFs);
-document.getElementById("subcategorySelect").addEventListener("change", filterPDFs);
-document.getElementById("searchInput").addEventListener("input", searchPDFs);
+document.addEventListener("DOMContentLoaded", function () {
+  document.getElementById("registerForm").addEventListener("submit", handleRegister);
+  document.getElementById("loginForm").addEventListener("submit", handleLogin);
+  document.getElementById("categorySelect").addEventListener("change", filterPDFs);
+  document.getElementById("subcategorySelect").addEventListener("change", filterPDFs);
+  document.getElementById("searchInput").addEventListener("input", searchPDFs);
+});
 
-// Check if the user is already logged in on page load
+// Check if the user is already logged in on page load and load PDFs
 window.onload = function () {
+  // Load PDFs
+  loadPDFs();
+
+  // Check if the user is already logged in
   const storedUserData = localStorage.getItem('userData');
   if (storedUserData) {
-    const userData = JSON.parse(storedUserData);
+      const userData = JSON.parse(storedUserData);
 
-    // Display the logged-in username
-    document.getElementById("userGreeting").innerText = `Welcome, ${userData.username}!`;
-    document.getElementById("userGreeting").style.display = "block";
+      // Display the logged-in username
+      document.getElementById("userGreeting").innerText = `Welcome, ${userData.username}!`;
+      document.getElementById("userGreeting").style.display = "block";
 
-    // Update the login/logout buttons
-    document.getElementById("navLinks").innerHTML = `
-      <button onclick="handleLogout()">Logout</button>
-    `;
+      // Update the login/logout buttons
+      document.getElementById("navLinks").innerHTML = `
+          <button onclick="handleLogout()">Logout</button>
+      `;
   }
 };
