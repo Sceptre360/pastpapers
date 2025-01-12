@@ -2,13 +2,13 @@
 const pdfFiles = [
   { title: "Mechanical Year 1", file: "media/Mech2.pdf" },
   { title: "Mechanical Year 2", file: "media/MECH1.pdf" },
-  { title: "Geospatial Year 1", file: "media/civil.pdf" },
+  { title: "Geospatial Year 1", file: "media/Civil.pdf" },
   { title: "Geospatial Year 2", file: "media/PASTPAPERS GEO.pdf" },
   { title: "Civil Year 1", file: "media/Civil.pdf" },
   { title: "Civil Year 2", file: "media/civil_year_2.pdf" },
-  { title: "Electrical Year 1", file: "media/civil.pdf" },
+  { title: "Electrical Year 1", file: "media/Civil.pdf" },
   { title: "Electrical Year 2", file: "media/elec.pdf" },
-  { title: "Biosystems Year 1", file: "media/civil.pdf" },
+  { title: "Biosystems Year 1", file: "media/Civil.pdf" },
   { title: "Biosystems Year 2", file: "media/PASTPAPERS GEO.pdf" }
 ];
 
