@@ -1,6 +1,4 @@
-// app.js
-
-// Utility to handle modal visibility
+// Existing functions (unchanged)
 function showModal(modalId) {
   document.getElementById(modalId).style.display = 'block';
 }
@@ -9,23 +7,20 @@ function closeModal(modalId) {
   document.getElementById(modalId).style.display = 'none';
 }
 
-// Toggle navigation menu on mobile
 function toggleMenu() {
   const navLinks = document.getElementById("navLinks");
   navLinks.classList.toggle("active");
 }
 
-// Show login modal
 function showLogin() {
   showModal("loginModal");
 }
 
-// Show register modal
 function showRegister() {
   showModal("registerModal");
 }
 
-// Handle user registration
+// Enhanced registration handler
 async function handleRegister(event) {
   event.preventDefault();
   const regNumber = document.getElementById("regNumber").value;
@@ -50,6 +45,11 @@ async function handleRegister(event) {
     const result = await response.json();
     if (response.ok) {
       alert("Registration successful!");
+
+      // Store user data in localStorage
+      const userData = { username: regNumber, password: regPassword };
+      localStorage.setItem('userData', JSON.stringify(userData));
+
       closeModal("registerModal");
     } else {
       alert(result.message || 'Registration failed!');
@@ -60,67 +60,76 @@ async function handleRegister(event) {
   }
 }
 
-// Modified frontend login handler (app.js)
-
-// Frontend login handler (app.js)
+// Enhanced login handler
 async function handleLogin(event) {
   event.preventDefault();
-  
-  const loginReg = document.getElementById("loginReg");
-  const loginPassword = document.getElementById("loginPassword");
+
+  const loginReg = document.getElementById("loginReg").value.trim();
+  const loginPassword = document.getElementById("loginPassword").value.trim();
 
   // Enhanced frontend validation
-  if (!loginReg.value || !loginPassword.value) {
-      alert("Please enter both username and password");
-      return;
+  if (!loginReg || !loginPassword) {
+    alert("Please enter both username and password");
+    return;
   }
 
-  const username = loginReg.value.trim();
-  const password = loginPassword.value.trim();
-
-  if (username.length < 3) {
-      alert("Username must be at least 3 characters long");
-      return;
+  if (loginReg.length < 3) {
+    alert("Username must be at least 3 characters long");
+    return;
   }
 
-  if (password.length < 6) {
-      alert("Password must be at least 6 characters long");
-      return;
+  if (loginPassword.length < 6) {
+    alert("Password must be at least 6 characters long");
+    return;
   }
 
+  // Check localStorage for user data
+  const storedUserData = localStorage.getItem('userData');
+  if (storedUserData) {
+    const userData = JSON.parse(storedUserData);
+    if (userData.username === loginReg && userData.password === loginPassword) {
+      alert("Login successful using localStorage!");
+      closeModal("loginModal");
+      document.getElementById("userGreeting").innerText = `Welcome, ${userData.username}!`;
+      document.getElementById("userGreeting").style.display = "block";
+      return; // Exit early if localStorage validation succeeds
+    }
+  }
+
+  // If localStorage validation fails, proceed with server login
   try {
-      const response = await fetch('/api/login', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-              username: username,
-              password: password
-          }),
-      });
+    const response = await fetch('/api/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username: loginReg,
+        password: loginPassword
+      }),
+    });
 
-      const result = await response.json();
+    const result = await response.json();
 
-      if (response.ok) {
-          alert("Login successful!");
-          closeModal("loginModal");
-          document.getElementById("userGreeting").innerText = `Welcome, ${result.user.username}!`;
-          document.getElementById("userGreeting").style.display = "block";
-          
-          // Clear form
-          loginReg.value = "";
-          loginPassword.value = "";
-      } else {
-          alert(result.message || 'Login failed. Please try again.');
-      }
+    if (response.ok) {
+      alert("Login successful!");
+      closeModal("loginModal");
+      document.getElementById("userGreeting").innerText = `Welcome, ${result.user.username}!`;
+      document.getElementById("userGreeting").style.display = "block";
+
+      // Clear form
+      document.getElementById("loginReg").value = "";
+      document.getElementById("loginPassword").value = "";
+    } else {
+      alert(result.message || 'Login failed. Please try again.');
+    }
   } catch (error) {
-      console.error('Login error:', error);
-      alert('Network error. Please try again.');
+    console.error('Login error:', error);
+    alert('Network error. Please try again.');
   }
 }
-     
-// Filter PDFs by category and subcategory
+
+// Existing functions (unchanged)
 function filterPDFs() {
   const category = document.getElementById("categorySelect").value;
   const subcategory = document.getElementById("subcategorySelect").value;
@@ -134,7 +143,6 @@ function filterPDFs() {
   });
 }
 
-// Search PDFs by title
 function searchPDFs() {
   const query = document.getElementById("searchInput").value.toLowerCase();
   const allCards = document.querySelectorAll(".pdf-card");
@@ -145,7 +153,6 @@ function searchPDFs() {
   });
 }
 
-// View PDF placeholder
 function viewPDF(title) {
   alert(`Opening PDF: ${title}`);
 }
