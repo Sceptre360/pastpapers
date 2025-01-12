@@ -492,8 +492,16 @@
             });
         }
 
-        // Function to open PDF in a new tab
+        // Function to open PDF in a new tab (with login check)
         function viewPDF(pdfFile) {
+            // Check if the user is logged in using localStorage
+            const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+
+            if (!isLoggedIn) {
+                alert("You must be logged in to view this PDF.");
+                showLogin(); // Show the login modal
+                return; // Stop further execution
+            }
             window.open(pdfFile, "_blank");
         }
 
