@@ -46,7 +46,7 @@ function viewPDF(pdfFile) {
 
   if (!isLoggedIn) {
       alert("You must be logged in to view this PDF.");
-      showLogin(); // Show the login modal
+      showRegister(); // Show the register modal
       return; // Stop further execution
   }
   window.open(pdfFile, "_blank");
