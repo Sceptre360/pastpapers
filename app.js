@@ -45,7 +45,7 @@ function viewPDF(pdfFile) {
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
 
   if (!isLoggedIn) {
-      alert("You must be logged in to view this PDF.");
+      alert("You Have To Register then Login To View.");
       showRegister(); // Show the register modal
       return; // Stop further execution
   }
