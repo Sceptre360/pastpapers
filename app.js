@@ -2,16 +2,19 @@
 const pdfFiles = [
   { title: "Mechanical Year 1", file: "media/Mech2.pdf" },
   { title: "Mechanical Year 2", file: "media/MECH1.pdf" },
+  { title: "Mechanical Year 3", file: "media/MECH1.pdf" },
   { title: "Geospatial Year 1", file: "media/Civil.pdf" },
   { title: "Geospatial Year 2", file: "media/PASTPAPERS GEO.pdf" },
   { title: "Geospatial Year 3", file: "media/Geo3.pdf" },
   { title: "Civil Year 1", file: "media/Civil.pdf" },
   { title: "Civil Year 2", file: "media/Civil2.pdf" },
+  { title: "Civil Year 3", file: "media/Civil2.pdf" },
   { title: "Electrical Year 1", file: "media/Civil.pdf" },
   { title: "Electrical Year 2", file: "media/elec.pdf" },
   { title: "Electrical Year 3", file: "media/elec3.pdf" },
   { title: "Biosystems Year 1", file: "media/Civil.pdf" },
   { title: "Biosystems Year 2", file: "media/PASTPAPERS GEO.pdf" }
+  { title: "Biosystems Year 3", file: "media/PASTPAPERS GEO.pdf" }
 ];
 
 // Function to dynamically create PDF cards
