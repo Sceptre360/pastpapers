@@ -14,7 +14,7 @@ const pdfFiles = [
   { title: "Electrical Year 3", file: "media/elec3.pdf" },
   { title: "Biosystems Year 1", file: "media/Civil.pdf" },
   { title: "Biosystems Year 2", file: "media/PASTPAPERS GEO.pdf" }
-  { title: "Biosystems Year 3", file: "media/PASTPAPERS GEO.pdf" }
+  { title: "Biosystems Year 3", file: "media/Bio3.pdf" }
 ];
 
 // Function to dynamically create PDF cards
