@@ -2,7 +2,7 @@
 const pdfFiles = [
   { title: "Mechanical Year 1", file: "media/Mech2.pdf" },
   { title: "Mechanical Year 2", file: "media/MECH1.pdf" },
-  { title: "Mechanical Year 3", file: "media/MECH1.pdf" },
+  { title: "Mechanical Year 3", file: "media/mech3.pdf" },
   { title: "Geospatial Year 1", file: "media/Civil.pdf" },
   { title: "Geospatial Year 2", file: "media/PASTPAPERS GEO.pdf" },
   { title: "Geospatial Year 3", file: "media/Geo3.pdf" },
