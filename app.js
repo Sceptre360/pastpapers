@@ -8,7 +8,7 @@ const pdfFiles = [
   { title: "Geospatial Year 3", file: "media/Geo3.pdf" },
   { title: "Civil Year 1", file: "media/Civil.pdf" },
   { title: "Civil Year 2", file: "media/Civil2.pdf" },
-  { title: "Civil Year 3", file: "media/Civil.pdf" },
+  { title: "Civil Year 3", file: "media/civil3.pdf" },
   { title: "Electrical Year 1", file: "media/Civil.pdf" },
   { title: "Electrical Year 2", file: "media/elec.pdf" },
   { title: "Electrical Year 3", file: "media/elec3.pdf" },
