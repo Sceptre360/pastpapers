@@ -36,9 +36,11 @@
         }
            /* Adjusted styles to ensure content is readable over the background without affecting course names visibility */
            .container {
-            padding: 2px;
-            margin: 2px auto;
-            z-index: 1; /* Added z-index to ensure course names appear over the background */
+            width: 100%;
+            max-width: 1200px;
+            padding: 0 1rem;
+            margin: 0 auto;
+            z-index: 1;
         }
 
       
@@ -216,11 +218,18 @@
             background-color: #87ceeb;
             padding: 1rem;
             text-align: center;
-            position: flex;
-            bottom: 0;
             width: 100%;
-            z-index: 99;
+            position: relative;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            overflow-x: hidden;
             box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        footer p {
+            margin: 0.5rem 0;
+            font-size: clamp(0.8rem, 2vw, 1rem);
         }
 
         /* User Management */
