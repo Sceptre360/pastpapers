@@ -29,10 +29,10 @@
             color: var(--text);
             line-height: 1.6;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
             margin: 0;
             padding: 0;
+            position: relative;
+            overflow-x: hidden;
         }
            /* Adjusted styles to ensure content is readable over the background without affecting course names visibility */
            .container {
@@ -93,10 +93,11 @@
         main {
             margin-top: 6rem;
             padding: 2rem 0;
-            flex: 2;
+            flex: 1;
             position: relative;
             z-index: 1;
             background: transparent;
+            min-height: calc(100vh - 6rem - 200px); /* Adjust for header and footer */
         }
 
         /* Auth Forms */
@@ -147,6 +148,11 @@
 
         /* Responsive Design */
         @media (max-width: 768px) {
+            body {
+                background-size: 100% auto;
+                background-position: top center;
+            }
+
             .nav-links {
                 display: none;
                 flex-direction: column;
@@ -157,6 +163,7 @@
                 background: white;
                 padding: 1rem;
                 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                width: 100%;
             }
 
             .nav-links.active {
@@ -165,57 +172,73 @@
 
             .menu-toggle {
                 display: block;
+                margin-right: 1rem;
             }
 
             .course-scroll-container {
-                margin: 4rem 0 1rem 0;
+                margin: 4rem auto 1rem;
+                padding: 0.5rem;
+                width: 90%;
+            }
+
+            .course-scroll-wrapper {
+                justify-content: center;
+                padding: 0;
             }
 
             .course-item {
-                font-size: clamp(1rem, 4vw, 1.5rem);
+                font-size: 1.5rem;
                 padding: 0.75rem 1.5rem;
+                min-width: 80vw;
+                text-align: center;
+            }
+
+            .welcome-message {
+                width: 90%;
+                margin: 1rem auto;
             }
 
             .welcome-message h2 {
-                font-size: clamp(1.2rem, 4vw, 1.8rem);
+                font-size: 1.2rem;
             }
 
             .access-button {
-                width: 150px;
-                height: 40px;
+                width: 120px;
+                height: 35px;
             }
 
-            .modal-content {
-                width: 95%;
-                margin: 1rem auto;
-                padding: 1rem;
+            header .container {
+                padding: 0 1rem;
             }
 
-            .auth-container {
-                padding: 1rem;
-            }
-
-            main {
-                margin-top: 4rem;
-                padding: 1rem 0;
+            .logo {
+                font-size: 1.2rem;
+                margin-left: 1rem;
             }
         }
 
         @media (max-width: 480px) {
-            .logo {
-                font-size: 1.2rem;
+            .course-scroll-container {
+                width: 95%;
+                margin: 3.5rem auto 1rem;
+            }
+
+            .course-item {
+                min-width: 90vw;
+                font-size: 1.3rem;
+                padding: 0.5rem 1rem;
+            }
+
+            .welcome-message h2 {
+                font-size: 1.1rem;
             }
 
             nav {
                 padding: 0.5rem;
             }
 
-            .course-scroll-container {
-                margin: 3.5rem 0 1rem 0;
-            }
-
-            .welcome-message {
-                margin: 1rem auto;
+            .menu-toggle {
+                margin-right: 0.5rem;
             }
         }
 
@@ -296,7 +319,7 @@
         .course-scroll-container {
             width: 100%;
             overflow-x: auto;
-            margin: 5rem ;
+            margin: 5rem auto;
             padding: 1rem 0;
             background: transparent;
             position: relative;
@@ -379,6 +402,24 @@
 
         .access-button:hover {
             background: var(--primary-dark);
+        }
+
+        @media screen and (max-width: 768px) {
+            body {
+                background-attachment: scroll;
+                background-position: center top;
+            }
+            
+            main {
+                margin-top: 4rem;
+                min-height: calc(100vh - 4rem - 180px);
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            body {
+                background-size: auto 100%;
+            }
         }
     </style>
 </head>
