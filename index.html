@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mtihani Past Papers</title>
+    <title>Mtihani Enotes</title>
     <link rel="icon" href="jacklogo.png" type="image/png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <style>
@@ -14,7 +14,7 @@
             --background: #87ceeb; /* Sky Blue */
             --text: #1f2937; /* Dark Text */
             --white: #ffffff; /* White */
-        }
+    }
 
         * {
             margin: 0;
@@ -24,17 +24,24 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: var(--background);
+            background: url('images/webimage.jpg') no-repeat center center fixed;
+            background-size: cover;
             color: var(--text);
             line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            padding: 0;
+        }
+           /* Adjusted styles to ensure content is readable over the background without affecting course names visibility */
+           .container {
+            padding: 2px;
+            margin: 2px auto;
+            z-index: 1; /* Added z-index to ensure course names appear over the background */
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
-
+      
         /* Header Styles */
         header {
             background: var(--white);
@@ -80,20 +87,14 @@
             cursor: pointer;
         }
 
-        /* SmartEngineer Banner */
-        .smart-engineer-banner {
-            background: var(--white);
-            color: var(--primary);
-            text-align: center;
-            padding: 1rem 0;
-            font-size: 1.5rem;
-            margin-top: 5rem;
-        }
-
         /* Main Content */
         main {
-            margin-top: 1rem;
+            margin-top: 6rem;
             padding: 2rem 0;
+            flex: 2;
+            position: relative;
+            z-index: 1;
+            background: transparent;
         }
 
         /* Auth Forms */
@@ -139,80 +140,8 @@
             background: var(--primary-dark);
         }
 
-        /* PDF Library */
-        .pdf-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1.5rem;
-            padding: 1rem 0;
-        }
-
-        .pdf-card {
-            background: var(--white);
-            color: var(--text);
-            border-radius: 8px;
-            padding: 1rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s;
-            text-align: center;
-        }
-
-        .pdf-card:hover {
-            transform: translateY(-2px);
-        }
-
-        .pdf-thumbnail {
-            width: 100%;
-            height: 150px;
-            background: #f3f4f6;
-            border-radius: 4px;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--primary);
-            text-transform: uppercase;
-        }
-
-        .pdf-card h3 {
-            margin: 0.5rem 0;
-            font-size: 1.25rem;
-            color: var(--primary-dark);
-        }
-
-        .pdf-card button {
-            background: var(--primary);
-            color: var(--white);
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 4px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .pdf-card button:hover {
-            background: var(--primary-dark);
-        }
-
-        /* Search Bar */
-        .search-container {
-            margin: 2rem 0;
-        }
-
-        .search-bar {
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-            display: flex;
-            gap: 1rem;
-        }
-
-        .search-bar input {
-            flex: 1;
-        }
+        
+      
 
         /* Responsive Design */
         @media (max-width: 768px) {
@@ -266,21 +195,7 @@
             font-size: 1.5rem;
         }
 
-        .revision-section {
-            background: var(--white);
-            color: var(--primary);
-            text-align: center;
-            padding: 2rem 0;
-            margin-top: 1rem;
-        }
-
-        .motivation-image {
-            width: 100%;
-            max-width: 400px;
-            height: auto;
-            margin: 1rem 0;
-        }
-
+        
         table {
             width: 100%;
             border-collapse: collapse;
@@ -295,13 +210,17 @@
 
         th {
             background-color: var(--primary);
-            color: white;
+            color: rgb(235, 26, 26);
         }
-
         footer {
             background-color: #87ceeb;
             padding: 1rem;
             text-align: center;
+            position: flex;
+            bottom: 0;
+            width: 100%;
+            z-index: 99;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
         }
 
         /* User Management */
@@ -312,6 +231,94 @@
             background: var(--white);
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .course-scroll-container {
+            width: 100%;
+            overflow-x: auto;
+            margin: 5rem ;
+            padding: 1rem 0;
+            background: transparent;
+            position: relative;
+            z-index: 1;
+        }
+
+        .course-scroll-wrapper {
+            display: flex;
+            gap: 2rem;
+            padding: 0 2rem;
+            min-width: max-content;
+        }
+
+        .course-item {
+            font-size: 2rem;
+            color: var(--primary-dark);
+            font-weight: bold;
+            padding: 1rem 2rem;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+            white-space: nowrap;
+        }
+
+        .course-item:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 1);
+        }
+
+        /* Add custom scrollbar styles */
+        .course-scroll-container::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .course-scroll-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 4px;
+        }
+
+        .course-scroll-container::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        .course-scroll-container::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+
+        html {
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+
+        .welcome-message {
+            text-align: center;
+            margin: 2rem auto;
+            padding: 1rem;
+            max-width: 800px;
+        }
+
+        .welcome-message h2 {
+            color: white;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .access-button {
+            width: 200px;
+            height: 50px;
+            background: var(--primary);
+            color: white;
+            font-weight: bold;
+            border: none;
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .access-button:hover {
+            background: var(--primary-dark);
         }
     </style>
 </head>
@@ -332,16 +339,22 @@
         </div>
     </header>
 
-    <div class="smart-engineer-banner">
-        SmartEngineer
+
+    <div class="course-scroll-container">
+        <div class="course-scroll-wrapper">
+            <div class="course-item">Mechanical</div>
+            <div class="course-item">Geospatial</div>
+            <div class="course-item">Civil</div>
+            <div class="course-item">Electrical</div>
+            <div class="course-item">Biosystems</div>
+        </div>
     </div>
 
-    <div class="revision-section">
-        <h2>It's Revision Time</h2>
-        <div class="motivation-container" id="motivationContainer">
-            <img src="images/jack4.jpg" alt="Motivation" class="motivation-image" id="motivationImage">
-            <p id="motivationMessage">You are smart enough!</p>
-        </div>
+    <div class="welcome-message">
+        <h2>Welcome And access All Engineering Notes and Past Papers</h2>
+        <a href="https://ammitechacademy.weebly.com/school-of-engineering.html" target="_blank">
+            <button class="access-button">Access</button>
+        </a>
     </div>
 
     <main class="container">
@@ -362,6 +375,7 @@
                         </div>
                         <button type="submit">Login</button>
                     </form>
+                    
                 </div>
             </div>
         </div>
@@ -409,34 +423,9 @@
             </table>
         </div>
 
-        <!-- Search Bar -->
-        <div class="search-container">
-            <label for="searchInput">Search PDFs by title</label>
-            <input type="text" id="searchInput" placeholder="Search PDFs by title" oninput="searchPDFs()">
+        
 
-            <label for="categorySelect">Select Course</label>
-            <select id="categorySelect" onchange="filterPDFs()">
-                <option value="">Select Course</option>
-                <option value="Mechanical">Mechanical</option>
-                <option value="Geospatial">Geospatial</option>
-                <option value="Civil">Civil</option>
-                <option value="Electrical">Electrical</option>
-                <option value="Biosystems">Biosystems</option>
-            </select>
-
-            <label for="subcategorySelect">Select Year</label>
-            <select id="subcategorySelect" onchange="filterPDFs()">
-                <option value="">Select Year</option>
-                <option value="Year 1">Year 1</option>
-                <option value="Year 2">Year 2</option>
-                <option value="Year 3">Year 3</option>
-            </select>
-        </div>
-
-        <!-- PDF Grid -->
-        <div class="pdf-grid" id="pdfGrid">
-            <!-- PDF cards will be dynamically added here -->
-        </div>
+       
     </main>
 
     <footer>
