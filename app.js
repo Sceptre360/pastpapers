@@ -43,7 +43,7 @@ function loadPDFs() {
       pdfGrid.appendChild(pdfCard);
   });
 }
-
+      
 // Function to open PDF in a new tab (with login check)
 function viewPDF(pdfFile) {
   // Check if the user is logged in using localStorage
@@ -69,15 +69,19 @@ function accessContent() {
     // If logged in, open the link
     window.open("https://ammitechacademy.weebly.com/school-of-engineering.html", "_blank");
 }
-
 // functions
 function showModal(modalId) {
-  document.getElementById(modalId).style.display = 'block';
+    const modal = document.getElementById(modalId);
+    modal.style.display = 'flex';
+    modal.classList.add('active');
 }
 
 function closeModal(modalId) {
-  document.getElementById(modalId).style.display = 'none';
+    const modal = document.getElementById(modalId);
+    modal.style.display = 'none';
+    modal.classList.remove('active');
 }
+
 
 function toggleMenu() {
   const navLinks = document.getElementById("navLinks");
